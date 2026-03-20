@@ -1,4 +1,4 @@
-package com.line4thon.fin4u.global.entity;
+package com.capstone.kkumteul.global.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

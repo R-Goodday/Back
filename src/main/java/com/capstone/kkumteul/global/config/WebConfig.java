@@ -1,4 +1,4 @@
-package com.line4thon.fin4u.global.config;
+package com.capstone.kkumteul.global.config;
 
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;

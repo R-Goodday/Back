@@ -1,6 +1,6 @@
-package com.line4thon.fin4u.global.response;
+package com.capstone.kkumteul.global.response;
 
-import com.line4thon.fin4u.global.response.code.BaseResponseCode;
+import com.capstone.kkumteul.global.response.code.BaseResponseCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;

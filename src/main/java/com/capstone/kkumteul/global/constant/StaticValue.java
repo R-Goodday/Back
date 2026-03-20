@@ -1,4 +1,4 @@
-package com.line4thon.fin4u.global.constant;
+package com.capstone.kkumteul.global.constant;
 
 /* Http 응답 코드 */
 public class StaticValue {

@@ -1,9 +1,9 @@
-package com.line4thon.fin4u.global.response.code;
+package com.capstone.kkumteul.global.response.code;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import static com.line4thon.fin4u.global.constant.StaticValue.*;
+import static com.capstone.kkumteul.global.constant.StaticValue.*;
 
 @Getter
 @AllArgsConstructor

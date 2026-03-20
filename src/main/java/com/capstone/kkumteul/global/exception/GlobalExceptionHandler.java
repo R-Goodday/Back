@@ -1,7 +1,7 @@
-package com.line4thon.fin4u.global.exception;
+package com.capstone.kkumteul.global.exception;
 
-import com.line4thon.fin4u.global.response.ErrorResponse;
-import com.line4thon.fin4u.global.response.code.ErrorResponseCode;
+import com.capstone.kkumteul.global.response.ErrorResponse;
+import com.capstone.kkumteul.global.response.code.ErrorResponseCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;

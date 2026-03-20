@@ -1,6 +1,6 @@
-package com.line4thon.fin4u.global.exception;
+package com.capstone.kkumteul.global.exception;
 
-import com.line4thon.fin4u.global.response.code.BaseResponseCode;
+import com.capstone.kkumteul.global.response.code.BaseResponseCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

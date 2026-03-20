@@ -1,10 +1,10 @@
-package com.line4thon.fin4u;
+package com.capstone.kkumteul;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class Fin4uApplicationTests {
+class KkumteulApplicationTests {
 
 	@Test
 	void contextLoads() {

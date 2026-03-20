@@ -1,13 +1,13 @@
-package com.line4thon.fin4u;
+package com.capstone.kkumteul;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Fin4uApplication {
+public class KkumteulApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(Fin4uApplication.class, args);
+		SpringApplication.run(KkumteulApplication.class, args);
 	}
 
 }
