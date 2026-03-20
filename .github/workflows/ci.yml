@@ -1,0 +1,87 @@
+name: CI with Gradle
+on:
+  pull_request:
+    branches: ["develop", "main"]
+  push:
+    branches: ["develop", "main"]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  JAVA_VERSION: '21'
+  IMAGE: ${{ secrets.DOCKER_USERNAME }}/fin4u
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Temurin JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Gradle Cache
+        #Gradle 빌드 속도를 빠르게 하기 위해 의존성과 작업(Task) 결과를 캐싱
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Enable Docker for Testcontainers
+        run: |
+            sudo mkdir -p /etc/docker
+            echo '{"features":{"containerd-snapshotter":true}}' | sudo tee /etc/docker/daemon.json
+            sudo systemctl restart docker
+
+      - name: Run Tests and Build JAR
+        #캐시된 의존성은 그대로 사용하고, 테스트는 실행하며, 테스트 성공 시 JAR을 생성하는 실제 빌드 명령
+        run: ./gradlew clean test bootJar --no-daemon
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+            name: app-jar
+            path: build/libs/*.jar
+
+  docker-push:
+    name: Docker Build & Push
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download JAR artifact
+        uses: actions/download-artifact@v4
+        with:
+            name: app-jar
+            path: build/libs
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+            username: ${{ secrets.DOCKER_USERNAME }}
+            password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build & Push image
+        uses: docker/build-push-action@v6
+        with:
+            context: .
+            push: true
+            tags: |
+              ${{ env.IMAGE }}:latest
+              ${{ env.IMAGE }}:${{ github.sha }}
