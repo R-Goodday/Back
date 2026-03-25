@@ -1,9 +1,6 @@
 package com.capstone.kkumteul.domain.game.service;
 
-import com.capstone.kkumteul.domain.game.web.dto.ClassifyRes;
-import com.capstone.kkumteul.domain.game.web.dto.GameStartRes;
-import com.capstone.kkumteul.domain.game.web.dto.QuizRes;
-import com.capstone.kkumteul.domain.game.web.dto.QuizAnswerRes;
+import com.capstone.kkumteul.domain.game.web.dto.*;
 
 public interface GameService {
 
@@ -14,4 +11,8 @@ public interface GameService {
     QuizRes requestQuiz(String sessionId, Long fromNodeId, Long toNodeId);
 
     QuizAnswerRes answerQuiz(String sessionId, String quizId, Long selectedChoiceId);
+
+    EdgeDetailRes getEdgeDetail(Long userId, Long edgeId);
+
+    GraphDetailRes getGraph(Long userId, Long fairytaleId);
 }

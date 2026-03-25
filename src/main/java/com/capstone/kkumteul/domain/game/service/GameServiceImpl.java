@@ -193,6 +193,60 @@ public class GameServiceImpl implements GameService {
         return QuizAnswerRes.correct(edge.getDescription());
     }
 
+    /**
+     * 3단계 엣지 상세 조회 — GET /game/edge
+     *
+     * <p>관계도 화면에서 선 클릭 시 호출. edge_id로 단건 조회 후 description 반환.</p>
+     * <ul>
+     *   <li>edge_id → graph_edges 조회 (없으면 404)</li>
+     *   <li>fromNode의 fairytale_id로 game_results 검증 → 본인 완료 데이터가 아니면 403</li>
+     * </ul>
+     */
+    @Override
+    public EdgeDetailRes getEdgeDetail(Long userId, Long edgeId) {
+        GraphEdge edge = graphEdgeRepository.findById(edgeId)
+                .orElseThrow(EdgeNotFoundException::new);
+
+        // fromNode → fairytale → game_results에서 해당 유저의 완료 여부 검증
+        Long fairytaleId = edge.getFromNode().getFairytale().getId();
+        validateGameCompleted(userId, fairytaleId);
+
+        return EdgeDetailRes.from(edge);
+    }
+
+    /**
+     * 3단계 전체 관계도 조회 — GET /game/graph
+     *
+     * <p>동화 모음집에서 '관계도' 버튼 클릭 시 호출. 완성된 그래프(노드+엣지)를 반환.</p>
+     * <ul>
+     *   <li>game_results에서 (userId, fairytaleId) 완료 검증 → 미완료/미존재 시 404</li>
+     *   <li>graph_nodes + graph_edges 조회 후 반환</li>
+     * </ul>
+     */
+    @Override
+    public GraphDetailRes getGraph(Long userId, Long fairytaleId) {
+        validateGameCompleted(userId, fairytaleId);
+
+        List<GraphNode> nodes = graphNodeRepository.findByFairytaleId(fairytaleId);
+        List<GraphEdge> edges = graphEdgeRepository.findByFairytaleId(fairytaleId);
+
+        return GraphDetailRes.of(fairytaleId, nodes, edges);
+    }
+
+    /**
+     * 게임 완료 여부 검증 — 3단계 조회 API 공통.
+     * game_results에서 (userId, fairytaleId) 조합으로 completed=true인지 확인.
+     * 결과가 없거나 미완료면 GameNotCompletedException,
+     * 다른 유저의 데이터에 접근하면 GameAccessDeniedException.
+     */
+    private void validateGameCompleted(Long userId, Long fairytaleId) {
+        GameResult result = gameResultRepository.findByUserIdAndFairytaleId(userId, fairytaleId)
+                .orElseThrow(GameNotCompletedException::new);
+        if (!Boolean.TRUE.equals(result.getCompleted())) {
+            throw new GameNotCompletedException();
+        }
+    }
+
     /** game_results INSERT — 2단계 완료 시 서버가 자동 저장 (앱 크래시 대비) */
     private void saveGameResult(GameSession session) {
         if (gameResultRepository.existsByUserIdAndFairytaleId(session.getUserId(), session.getFairytaleId())) {
