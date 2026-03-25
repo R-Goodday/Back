@@ -7,10 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -53,6 +50,24 @@ public class GameController {
             @Valid @RequestBody QuizAnswerReq req
     ) {
         QuizAnswerRes res = gameService.answerQuiz(req.getSessionId(), req.getQuizId(), req.getSelectedChoiceId());
+        return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.ok(res));
+    }
+
+    /** 3단계 — 관계도에서 선 클릭 시 관계 설명 조회 */
+    @GetMapping("/edge")
+    public ResponseEntity<SuccessResponse<EdgeDetailRes>> getEdgeDetail(
+            @RequestParam("edge_id") Long edgeId
+    ) {
+        EdgeDetailRes res = gameService.getEdgeDetail(TEMP_USER_ID, edgeId);
+        return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.ok(res));
+    }
+
+    /** 3단계 — 동화 모음집에서 완성된 관계도 전체 조회 */
+    @GetMapping("/graph")
+    public ResponseEntity<SuccessResponse<GraphDetailRes>> getGraph(
+            @RequestParam("fairytale_id") Long fairytaleId
+    ) {
+        GraphDetailRes res = gameService.getGraph(TEMP_USER_ID, fairytaleId);
         return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.ok(res));
     }
 }
