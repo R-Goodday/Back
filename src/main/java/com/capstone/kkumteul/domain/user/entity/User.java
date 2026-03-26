@@ -1,4 +1,4 @@
-package com.capstone.kkumteul.domain.user;
+package com.capstone.kkumteul.domain.user.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
