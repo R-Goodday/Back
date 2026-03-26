@@ -55,7 +55,7 @@ public class JwtTokenProvider {
 
                 // claim : User에서 자주 쓰이는 필드(DB 접근 최소화)
                 .claim("userId", user.getUserId())
-//                .claim("role", user.getRole()) FIXME 추후 Role 열거형 선언 시 수정 요망
+                .claim("role", user.getRole())
 
                 // issuedAt : 토큰 발행 시간
                 .issuedAt(now)
