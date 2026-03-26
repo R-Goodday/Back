@@ -1,8 +1,8 @@
 package com.capstone.kkumteul.global.response;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.capstone.kkumteul.global.response.code.BaseResponseCode;
 import com.capstone.kkumteul.global.response.code.SuccessResponseCode;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
