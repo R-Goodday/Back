@@ -8,10 +8,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-// 인증된 사용자가 인가되지 않은 요청 시 발생하는 예외
+/*
+ * JWT 403 - Forbidden
+ */
+@Component
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
     @Override
@@ -26,6 +30,6 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         // ResponseBody - 403 Forbidden 으로 설정
         BaseResponse errorResponse = BaseResponse.of(ErrorResponseCode.ACCESS_DENIED_REQUEST);
 
-        response.getWriter().write(new ObjectMapper().writeValueAsString(errorResponse));
+        response.getWriter().write(new ObjectMapper().writeValueAsString(errorResponse.getMessage()));
     }
 }
