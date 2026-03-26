@@ -3,6 +3,7 @@ package com.capstone.kkumteul.global.jwt;
 import com.capstone.kkumteul.domain.user.entity.User;
 import com.capstone.kkumteul.domain.user.exception.UserNotFoundException;
 import com.capstone.kkumteul.domain.user.repository.UserRepository;
+import com.capstone.kkumteul.global.security.CustomUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -98,7 +99,7 @@ public class JwtTokenProvider {
                 .orElseThrow(UserNotFoundException::new);
 
         // create UserDetails implementation
-        CustomUserDetails userDetail = new CustomUserDetails(user);
+        CustomUserDetails userDetails = new CustomUserDetails(user);
 
         // Spring Security 내에 저장
         return new UsernamePasswordAuthenticationToken(
