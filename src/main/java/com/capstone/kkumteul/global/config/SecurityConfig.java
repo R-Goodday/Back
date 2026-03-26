@@ -2,6 +2,7 @@ package com.capstone.kkumteul.global.config;
 
 import com.capstone.kkumteul.global.exception.auth.CustomAccessDeniedHandler;
 import com.capstone.kkumteul.global.exception.auth.CustomAuthenticationEntryPointHandler;
+import com.capstone.kkumteul.global.jwt.JwtTokenFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,7 @@ public class SecurityConfig {
 
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPointHandler customAuthenticationEntryPointHandler;
+    private final JwtTokenFilter jwtTokenFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
