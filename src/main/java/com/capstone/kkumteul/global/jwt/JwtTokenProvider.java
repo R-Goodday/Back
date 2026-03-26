@@ -106,6 +106,6 @@ public class JwtTokenProvider {
                 userDetails,
                 null,
                 userDetails.getAuthorities()
-        )
+        );
     }
 }
