@@ -1,5 +1,7 @@
 package com.capstone.kkumteul.domain.auth.service;
 
+import com.capstone.kkumteul.domain.auth.exception.DuplicatedIdException;
+import com.capstone.kkumteul.domain.auth.exception.InvalidPasswordException;
 import com.capstone.kkumteul.domain.auth.web.dto.LogInReq;
 import com.capstone.kkumteul.domain.auth.web.dto.SignUpReq;
 import com.capstone.kkumteul.domain.user.entity.User;
@@ -23,9 +25,7 @@ public class AuthServiceImpl implements AuthService {
 
         // 1. id 필드는 unique 속성이므로 중복 검증
         if(userRepository.existsByUserId(request.getUserId()))
-
-            // FIXME 커스텀 예외로 변경 필요
-            throw new RuntimeException();
+            throw new DuplicatedIdException();
 
         // 2, User 객체 build
         User user = User.builder()
@@ -52,7 +52,11 @@ public class AuthServiceImpl implements AuthService {
         User found = userRepository.findByUserId(req.getUserId())
                 .orElseThrow(UserNotFoundException::new);
 
-        // 2. JWT 발급
+        // 2. 비밀번호 검증
+        if(!found.getPassword().equals(req.getPassword()))
+            throw new InvalidPasswordException();
+
+        // 3. JWT 발급
         String token = jwtTokenProvider.generateToken(found);
 
         return token;
