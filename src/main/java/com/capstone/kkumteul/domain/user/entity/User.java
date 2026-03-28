@@ -24,5 +24,9 @@ public class User {
     private String username;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+    @Column(nullable = false)
     private String role;
 }
