@@ -1,6 +1,7 @@
 package com.capstone.kkumteul.domain.auth.web.controller;
 
 import com.capstone.kkumteul.domain.auth.service.AuthService;
+import com.capstone.kkumteul.domain.auth.web.dto.LogInReq;
 import com.capstone.kkumteul.domain.auth.web.dto.SignUpReq;
 import com.capstone.kkumteul.global.response.SuccessResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,11 +32,34 @@ public class AuthController {
         // 회원가입 비즈니스 메소드 호출
         String result = authService.saveUser(req);
 
-        // Authorization 필드에 Bearer 토큰 삽입
-        response.addHeader("Authorization", "Bearer " + result);
+        setAuthHeader(response, result);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(SuccessResponse.created(null));
+    }
+
+
+    @PostMapping("login")
+    public ResponseEntity<SuccessResponse<?>> login(
+            // 로그인 요청 DTO
+            @Valid @RequestBody LogInReq request,
+            // Authorization 필드 접근용 응답 객체
+            HttpServletResponse response
+    ) {
+
+        // 로그인 비즈니스 로직 호출
+        String result = authService.loginUser(request);
+
+        setAuthHeader(response, result);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.empty());
+    }
+
+    private void setAuthHeader(HttpServletResponse response, String result) {
+        // Authorization 필드에 Bearer 토큰 삽입
+        response.addHeader("Authorization", "Bearer " + result);
     }
 }
