@@ -22,6 +22,6 @@ public class SignUpReq {
     @NotNull(message = "나이 필드는 비어있을 수 없습니다.")
     private final int age;
 
-    @NotBlank(message = "성별 필드는 비어있을 수 없습니다.")
+    @NotNull(message = "성별 필드는 비어있을 수 없습니다.")
     private final Gender gender;
 }
