@@ -36,6 +36,6 @@ public class AuthController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(SuccessResponse.empty());
+                .body(SuccessResponse.created(null));
     }
 }
