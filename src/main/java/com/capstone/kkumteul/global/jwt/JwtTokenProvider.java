@@ -30,8 +30,8 @@ public class JwtTokenProvider {
 
     public JwtTokenProvider(
             UserRepository userRepository,
-            @Value("${jwt.secretKey}") String secretKey,
-            @Value("${jwt.exprition}") long expiration
+            @Value("${jwt.secret}") String secretKey,
+            @Value("${jwt.expiration}") long expiration
     ) {
         this.userRepository = userRepository;
         this.secretKey = secretKey;
