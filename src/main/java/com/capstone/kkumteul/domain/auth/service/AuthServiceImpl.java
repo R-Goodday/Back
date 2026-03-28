@@ -1,7 +1,9 @@
 package com.capstone.kkumteul.domain.auth.service;
 
+import com.capstone.kkumteul.domain.auth.web.dto.LogInReq;
 import com.capstone.kkumteul.domain.auth.web.dto.SignUpReq;
 import com.capstone.kkumteul.domain.user.entity.User;
+import com.capstone.kkumteul.domain.user.exception.UserNotFoundException;
 import com.capstone.kkumteul.domain.user.repository.UserRepository;
 import com.capstone.kkumteul.global.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -37,8 +39,21 @@ public class AuthServiceImpl implements AuthService {
         // 3. User 객체 저장
         userRepository.save(user);
 
-        // 4. JWT 생성
+        // 4. JWT 발급
         String token = jwtTokenProvider.generateToken(user);
+
+        return token;
+    }
+
+    @Override
+    public String loginUser(LogInReq req) {
+
+        // 1. 회원 조회
+        User found = userRepository.findByUserId(req.getUserId())
+                .orElseThrow(UserNotFoundException::new);
+
+        // 2. JWT 발급
+        String token = jwtTokenProvider.generateToken(found);
 
         return token;
     }
