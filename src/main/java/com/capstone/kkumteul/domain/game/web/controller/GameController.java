@@ -2,7 +2,9 @@ package com.capstone.kkumteul.domain.game.web.controller;
 
 import com.capstone.kkumteul.domain.game.service.GameService;
 import com.capstone.kkumteul.domain.game.web.dto.*;
+import com.capstone.kkumteul.domain.user.entity.User;
 import com.capstone.kkumteul.global.response.SuccessResponse;
+import com.capstone.kkumteul.global.security.AuthUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,14 +18,12 @@ public class GameController {
 
     private final GameService gameService;
 
-    // TODO: JWT 인증 도입 시 @AuthenticationPrincipal로 교체
-    private static final Long TEMP_USER_ID = 1L;
-
     @PostMapping("/start")
     public ResponseEntity<SuccessResponse<GameStartRes>> startGame(
+            @AuthUser User user,
             @Valid @RequestBody GameStartReq req
     ) {
-        GameStartRes res = gameService.startGame(TEMP_USER_ID, req.getFairytaleId());
+        GameStartRes res = gameService.startGame(user.getId(), req.getFairytaleId());
         return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.ok(res));
     }
 
@@ -56,18 +56,20 @@ public class GameController {
     /** 3단계 — 관계도에서 선 클릭 시 관계 설명 조회 */
     @GetMapping("/edge")
     public ResponseEntity<SuccessResponse<EdgeDetailRes>> getEdgeDetail(
+            @AuthUser User user,
             @RequestParam("edge_id") Long edgeId
     ) {
-        EdgeDetailRes res = gameService.getEdgeDetail(TEMP_USER_ID, edgeId);
+        EdgeDetailRes res = gameService.getEdgeDetail(user.getId(), edgeId);
         return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.ok(res));
     }
 
     /** 3단계 — 동화 모음집에서 완성된 관계도 전체 조회 */
     @GetMapping("/graph")
     public ResponseEntity<SuccessResponse<GraphDetailRes>> getGraph(
+            @AuthUser User user,
             @RequestParam("fairytale_id") Long fairytaleId
     ) {
-        GraphDetailRes res = gameService.getGraph(TEMP_USER_ID, fairytaleId);
+        GraphDetailRes res = gameService.getGraph(user.getId(), fairytaleId);
         return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.ok(res));
     }
 }
