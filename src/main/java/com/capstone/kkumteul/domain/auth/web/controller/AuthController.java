@@ -40,7 +40,7 @@ public class AuthController {
     }
 
 
-    @PostMapping("login")
+    @PostMapping("/login")
     public ResponseEntity<SuccessResponse<?>> login(
             // 로그인 요청 DTO
             @Valid @RequestBody LogInReq request,
