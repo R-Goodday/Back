@@ -1,5 +1,6 @@
 package com.capstone.kkumteul.domain.user.entity;
 
+import com.capstone.kkumteul.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -8,7 +9,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class User {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +27,9 @@ public class User {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Gender gender;
+
+    @Column(nullable = false)
+    private int age;
 
     @Column(nullable = false)
     private String role;
