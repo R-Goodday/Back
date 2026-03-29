@@ -236,8 +236,7 @@ public class GameServiceImpl implements GameService {
     /**
      * 게임 완료 여부 검증 — 3단계 조회 API 공통.
      * game_results에서 (userId, fairytaleId) 조합으로 completed=true인지 확인.
-     * 결과가 없거나 미완료면 GameNotCompletedException,
-     * 다른 유저의 데이터에 접근하면 GameAccessDeniedException.
+     * 결과가 없거나 미완료면 GameNotCompletedException.
      */
     private void validateGameCompleted(Long userId, Long fairytaleId) {
         GameResult result = gameResultRepository.findByUserIdAndFairytaleId(userId, fairytaleId)
