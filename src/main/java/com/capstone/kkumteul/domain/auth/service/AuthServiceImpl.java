@@ -9,6 +9,7 @@ import com.capstone.kkumteul.domain.user.exception.UserNotFoundException;
 import com.capstone.kkumteul.domain.user.repository.UserRepository;
 import com.capstone.kkumteul.global.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
@@ -30,7 +32,7 @@ public class AuthServiceImpl implements AuthService {
         // 2, User 객체 build
         User user = User.builder()
                 .userId(request.getUserId())
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .username(request.getNickname())
                 .gender(request.getGender())
                 .role("USER")
@@ -53,7 +55,8 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(UserNotFoundException::new);
 
         // 2. 비밀번호 검증
-        if(!found.getPassword().equals(req.getPassword()))
+        String encoded = passwordEncoder.encode(req.getPassword());
+        if(!found.getPassword().equals(encoded))
             throw new InvalidPasswordException();
 
         // 3. JWT 발급
