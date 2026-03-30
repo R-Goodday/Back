@@ -21,7 +21,6 @@ public class ErrorResponse<T> extends BaseResponse {
         this.data = data;
     }
 
-    @Builder
     public ErrorResponse(T data, BaseResponseCode baseResponseCode, String message) {
         super(false, baseResponseCode.getCode(), message);
         this.httpStatus = baseResponseCode.getHttpStatus();
