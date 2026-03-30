@@ -13,13 +13,16 @@ import com.capstone.kkumteul.domain.game.repository.GraphEdgeRepository;
 import com.capstone.kkumteul.domain.game.repository.GraphNodeRepository;
 import com.capstone.kkumteul.domain.game.web.dto.*;
 import com.capstone.kkumteul.domain.user.entity.User;
+import com.capstone.kkumteul.global.client.GraphService;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -31,6 +34,7 @@ public class GameServiceImpl implements GameService {
     private final GameResultRepository gameResultRepository;
     private final GameSessionManager sessionManager;
     private final EntityManager entityManager;
+    private final GraphService graphService;
 
     /**
      * 게임 시작 — POST /game/start
@@ -45,6 +49,7 @@ public class GameServiceImpl implements GameService {
      * </ol>
      */
     @Override
+    @Transactional
     public GameStartRes startGame(Long userId, Long fairytaleId) {
         // 동화 존재 확인
         Fairytale fairytale = entityManager.find(Fairytale.class, fairytaleId);
@@ -60,9 +65,16 @@ public class GameServiceImpl implements GameService {
                     }
                 });
 
-        // graph_nodes 테이블에서 fairytaleId로 그래프 존재 확인
+        // graph_nodes 테이블에서 fairytaleId로 그래프 존재 확인 → 없으면 FastAPI 호출
         if (!graphNodeRepository.existsByFairytaleId(fairytaleId)) {
-            throw new GraphNotFoundException();
+            log.info("그래프 미존재 — FastAPI 추출 호출: fairytaleId={}", fairytaleId);
+            // TODO: 동화 생성 구현 후 실제 content로 교체
+            String dummyContent = "옛날 옛적에 용감한 토끼가 깊은 숲 속에 살았어요. "
+                    + "어느 날 토끼는 숲 속에서 길을 잃은 여우를 만났어요. "
+                    + "토끼는 여우를 도와 함께 집으로 돌아갔어요. "
+                    + "그날부터 토끼와 여우는 가장 친한 친구가 되었어요. "
+                    + "서로 도우면 더 큰 행복을 얻을 수 있다는 교훈을 배웠어요.";
+            graphService.extractAndSave(fairytale, dummyContent);
         }
 
         // 기존 세션 제거 — 뒤로 가기 후 재진입 시 새 세션으로 처음부터
