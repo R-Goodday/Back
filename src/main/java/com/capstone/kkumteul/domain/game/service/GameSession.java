@@ -7,6 +7,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 게임 세션 — 서버 메모리에만 존재하며 DB에 저장하지 않음.
@@ -49,7 +50,7 @@ public class GameSession {
         this.edges = edges;
         this.classifiedNodeIds = new HashSet<>();
         this.completedEdgeIds = new HashSet<>();
-        this.quizEdgeMap = new HashMap<>();
+        this.quizEdgeMap = new ConcurrentHashMap<>();
         this.lastActivity = LocalDateTime.now();
     }
 
