@@ -5,6 +5,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.Collection;
 import java.util.List;
+
+/**
+ * POST /game/classify 응답 DTO.
+ * 상황별로 다른 필드가 채워지며, null 필드는 JSON에서 제외(@JsonInclude).
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ClassifyRes(
         boolean correct,

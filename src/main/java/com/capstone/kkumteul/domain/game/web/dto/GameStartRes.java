@@ -7,6 +7,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * POST /game/start 응답 DTO.
+ * 세션 ID, 현재 단계("CLASSIFY"), 1단계 문제 데이터(노드 목록 + 카테고리 바구니 목록)를 반환.
+ */
 public record GameStartRes(
         String sessionId,
         String stage,

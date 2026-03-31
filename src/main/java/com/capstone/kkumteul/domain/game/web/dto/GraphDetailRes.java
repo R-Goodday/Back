@@ -5,6 +5,10 @@ import com.capstone.kkumteul.domain.game.entity.GraphNode;
 
 import java.util.List;
 
+/**
+ * GET /game/graph 응답 DTO.
+ * 동화 모음집에서 완성된 관계도 전체(노드+엣지)를 조회할 때 사용.
+ */
 public record GraphDetailRes(
         Long fairytaleId,
         List<NodeWithCategoryRes> nodes,

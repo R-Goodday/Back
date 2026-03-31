@@ -6,6 +6,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.Collection;
 import java.util.List;
+
+/**
+ * POST /game/quiz/answer 응답 DTO.
+ * 정답 시 description 반환, 오답 시 힌트 반환.
+ * 2단계 완료 시 완성된 그래프 데이터 포함.
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record QuizAnswerRes(
         boolean correct,
