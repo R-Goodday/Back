@@ -33,6 +33,8 @@ public class GameSession {
     private final Set<Long> classifiedNodeIds;
     /** 2단계에서 정답 처리된 엣지 ID */
     private final Set<Long> completedEdgeIds;
+    /** quizId → edgeId 매핑. 퀴즈 요청 시 생성, 정답 제출 시 조회 */
+    private final Map<String, Long> quizEdgeMap;
     /** 마지막 활동 시간 — TTL 판단 기준 */
     private LocalDateTime lastActivity;
 
@@ -47,6 +49,7 @@ public class GameSession {
         this.edges = edges;
         this.classifiedNodeIds = new HashSet<>();
         this.completedEdgeIds = new HashSet<>();
+        this.quizEdgeMap = new HashMap<>();
         this.lastActivity = LocalDateTime.now();
     }
 
@@ -91,9 +94,29 @@ public class GameSession {
         completedEdgeIds.add(edgeId);
     }
 
+    /** 이미 정답 처리된 엣지인지 확인 */
+    public boolean isEdgeCompleted(Long edgeId) {
+        return completedEdgeIds.contains(edgeId);
+    }
+
     /** 모든 엣지가 정답 처리되었으면 2단계 완료 */
     public boolean isAssembleComplete() {
         return completedEdgeIds.size() >= edges.size();
+    }
+
+    /**
+     * 퀴즈 생성 시 quizId → edgeId 매핑 저장.
+     * 정답 제출 시 quizId로 어떤 엣지에 대한 퀴즈인지 조회.
+     */
+    public String registerQuiz(Long edgeId) {
+        String quizId = UUID.randomUUID().toString().substring(0, 8);
+        quizEdgeMap.put(quizId, edgeId);
+        return quizId;
+    }
+
+    /** quizId로 매핑된 edgeId 조회 */
+    public Long getEdgeIdByQuizId(String quizId) {
+        return quizEdgeMap.get(quizId);
     }
 
     public int getTotalEdges() {

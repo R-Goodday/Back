@@ -1,10 +1,7 @@
 package com.capstone.kkumteul.domain.game.web.controller;
 
 import com.capstone.kkumteul.domain.game.service.GameService;
-import com.capstone.kkumteul.domain.game.web.dto.ClassifyReq;
-import com.capstone.kkumteul.domain.game.web.dto.ClassifyRes;
-import com.capstone.kkumteul.domain.game.web.dto.GameStartReq;
-import com.capstone.kkumteul.domain.game.web.dto.GameStartRes;
+import com.capstone.kkumteul.domain.game.web.dto.*;
 import com.capstone.kkumteul.global.response.SuccessResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +35,24 @@ public class GameController {
             @Valid @RequestBody ClassifyReq req
     ) {
         ClassifyRes res = gameService.classify(req.getSessionId(), req.getNodeId(), req.getCategory());
+        return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.ok(res));
+    }
+
+    /** 2단계 — 두 노드 사이 선을 그으면 퀴즈 반환 */
+    @PostMapping("/quiz")
+    public ResponseEntity<SuccessResponse<QuizRes>> requestQuiz(
+            @Valid @RequestBody QuizReq req
+    ) {
+        QuizRes res = gameService.requestQuiz(req.getSessionId(), req.getFromNodeId(), req.getToNodeId());
+        return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.ok(res));
+    }
+
+    /** 2단계 — 퀴즈 정답 제출 (choice_id PK 기반 채점) */
+    @PostMapping("/quiz/answer")
+    public ResponseEntity<SuccessResponse<QuizAnswerRes>> answerQuiz(
+            @Valid @RequestBody QuizAnswerReq req
+    ) {
+        QuizAnswerRes res = gameService.answerQuiz(req.getSessionId(), req.getQuizId(), req.getSelectedChoiceId());
         return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.ok(res));
     }
 }

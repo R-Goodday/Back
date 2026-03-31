@@ -4,14 +4,15 @@ import com.capstone.kkumteul.domain.fairytale.entity.Fairytale;
 import com.capstone.kkumteul.domain.game.entity.GraphEdge;
 import com.capstone.kkumteul.domain.game.entity.GraphNode;
 import com.capstone.kkumteul.domain.game.entity.NodeCategory;
-import com.capstone.kkumteul.domain.game.exception.FairytaleNotFoundException;
-import com.capstone.kkumteul.domain.game.exception.GameAlreadyCompletedException;
-import com.capstone.kkumteul.domain.game.exception.GraphNotFoundException;
+import com.capstone.kkumteul.domain.game.entity.EdgeChoice;
+import com.capstone.kkumteul.domain.game.entity.GameResult;
+import com.capstone.kkumteul.domain.game.exception.*;
+import com.capstone.kkumteul.domain.game.repository.EdgeChoiceRepository;
 import com.capstone.kkumteul.domain.game.repository.GameResultRepository;
 import com.capstone.kkumteul.domain.game.repository.GraphEdgeRepository;
 import com.capstone.kkumteul.domain.game.repository.GraphNodeRepository;
-import com.capstone.kkumteul.domain.game.web.dto.ClassifyRes;
-import com.capstone.kkumteul.domain.game.web.dto.GameStartRes;
+import com.capstone.kkumteul.domain.game.web.dto.*;
+import com.capstone.kkumteul.domain.user.entity.User;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class GameServiceImpl implements GameService {
 
     private final GraphNodeRepository graphNodeRepository;
     private final GraphEdgeRepository graphEdgeRepository;
+    private final EdgeChoiceRepository edgeChoiceRepository;
     private final GameResultRepository gameResultRepository;
     private final GameSessionManager sessionManager;
     private final EntityManager entityManager;
@@ -110,5 +112,99 @@ public class GameServiceImpl implements GameService {
         }
 
         return ClassifyRes.correct(false);
+    }
+
+    /**
+     * 2단계 퀴즈 요청 — POST /game/quiz
+     *
+     * <p>두 노드 사이에 선을 그을 때 호출.</p>
+     * <ul>
+     *   <li>양방향 매칭으로 엣지 조회 (A→B든 B→A든 동일 엣지)</li>
+     *   <li>이미 정답 처리된 엣지면 409 (ALREADY_ANSWERED)</li>
+     *   <li>유효하지 않은 조합이면 400 (INVALID_EDGE)</li>
+     *   <li>보기 3개는 랜덤 셔플하여 반환</li>
+     * </ul>
+     */
+    @Override
+    public QuizRes requestQuiz(String sessionId, Long fromNodeId, Long toNodeId) {
+        GameSession session = sessionManager.get(sessionId);
+
+        // 양방향 매칭으로 엣지 조회
+        GraphEdge edge = graphEdgeRepository.findByNodePair(fromNodeId, toNodeId)
+                .orElseThrow(InvalidEdgeException::new);
+
+        // 이미 정답 처리된 엣지 방어 처리
+        if (session.isEdgeCompleted(edge.getId())) {
+            throw new AlreadyAnsweredException();
+        }
+
+        // quizId 생성 후 세션에 매핑 저장
+        String quizId = session.registerQuiz(edge.getId());
+
+        // 보기 조회
+        List<EdgeChoice> choices = edgeChoiceRepository.findByEdgeId(edge.getId());
+
+        return QuizRes.of(quizId, edge.getFromNode().getWord(), edge.getToNode().getWord(), choices);
+    }
+
+    /**
+     * 2단계 퀴즈 정답 제출 — POST /game/quiz/answer
+     *
+     * <p>choice_id(PK)로 정답 제출. 텍스트 매칭 대신 PK 비교로 안전 채점.</p>
+     * <ul>
+     *   <li>정답 시 description 반환 → 앱에서 관계 설명 모달 표시</li>
+     *   <li>오답 시 힌트 반환 (재시도 제한 없음 — 유아 대상)</li>
+     *   <li>모든 엣지 완료 시 game_results 자동 저장 + 완성된 그래프 반환</li>
+     * </ul>
+     */
+    @Override
+    @Transactional
+    public QuizAnswerRes answerQuiz(String sessionId, String quizId, Long selectedChoiceId) {
+        GameSession session = sessionManager.get(sessionId);
+
+        // quizId로 edgeId 조회
+        Long edgeId = session.getEdgeIdByQuizId(quizId);
+        if (edgeId == null) {
+            throw new QuizNotFoundException();
+        }
+
+        // choice_id로 정답 여부 확인
+        EdgeChoice selectedChoice = edgeChoiceRepository.findById(selectedChoiceId)
+                .orElseThrow(QuizNotFoundException::new);
+
+        if (!Boolean.TRUE.equals(selectedChoice.getIsAnswer())) {
+            return QuizAnswerRes.incorrect();
+        }
+
+        // 정답 처리 — 엣지 완료 표시
+        GraphEdge edge = graphEdgeRepository.findById(edgeId)
+                .orElseThrow(InvalidEdgeException::new);
+        session.markEdgeCompleted(edgeId);
+
+        // 모든 엣지 완료 → 2단계 종료
+        if (session.isAssembleComplete()) {
+            // game_results 자동 저장 (UNIQUE 제약으로 중복 방지)
+            saveGameResult(session);
+            // 세션 제거
+            sessionManager.remove(sessionId);
+            return QuizAnswerRes.stageComplete(edge.getDescription(), session.getNodes(), session.getEdges());
+        }
+
+        return QuizAnswerRes.correct(edge.getDescription());
+    }
+
+    /** game_results INSERT — 2단계 완료 시 서버가 자동 저장 (앱 크래시 대비) */
+    private void saveGameResult(GameSession session) {
+        if (gameResultRepository.existsByUserIdAndFairytaleId(session.getUserId(), session.getFairytaleId())) {
+            return;
+        }
+        User user = entityManager.find(User.class, session.getUserId());
+        Fairytale fairytale = entityManager.find(Fairytale.class, session.getFairytaleId());
+        GameResult result = GameResult.builder()
+                .user(user)
+                .fairytale(fairytale)
+                .completed(true)
+                .build();
+        gameResultRepository.save(result);
     }
 }
