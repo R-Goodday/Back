@@ -11,7 +11,6 @@ import static com.capstone.kkumteul.global.constant.StaticValue.*;
 public enum GameErrorCode implements BaseResponseCode {
 
     SESSION_NOT_FOUND("GAME_404_1", NOT_FOUND, "세션이 만료되었습니다. 게임을 다시 시작해주세요."),
-    FAIRYTALE_NOT_FOUND("GAME_404_2", NOT_FOUND, "동화를 찾을 수 없습니다."),
     GRAPH_NOT_FOUND("GAME_404_3", NOT_FOUND, "지식그래프가 아직 생성되지 않았습니다."),
     GAME_ALREADY_COMPLETED("GAME_409_1", CONFLICT, "이미 완료한 게임입니다. 관계도를 조회해주세요."),
     INVALID_EDGE("GAME_400_1", BAD_REQUEST, "연결할 수 없는 노드 조합입니다."),
