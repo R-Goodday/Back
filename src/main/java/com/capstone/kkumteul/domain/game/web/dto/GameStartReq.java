@@ -10,6 +10,6 @@ import lombok.Getter;
 @Getter
 public class GameStartReq {
 
-    @NotNull(message = "fairytale_id는 필수입니다.")
+    @NotNull(message = "fairytaleId는 필수입니다.")
     private Long fairytaleId;
 }

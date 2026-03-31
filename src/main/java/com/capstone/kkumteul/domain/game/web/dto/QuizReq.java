@@ -11,12 +11,12 @@ import lombok.Getter;
 @Getter
 public class QuizReq {
 
-    @NotNull(message = "session_id는 필수입니다.")
+    @NotNull(message = "sessionId는 필수입니다.")
     private String sessionId;
 
-    @NotNull(message = "from_node_id는 필수입니다.")
+    @NotNull(message = "fromNodeId는 필수입니다.")
     private Long fromNodeId;
 
-    @NotNull(message = "to_node_id는 필수입니다.")
+    @NotNull(message = "toNodeId는 필수입니다.")
     private Long toNodeId;
 }

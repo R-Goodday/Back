@@ -11,10 +11,10 @@ import lombok.Getter;
 @Getter
 public class ClassifyReq {
 
-    @NotNull(message = "session_id는 필수입니다.")
+    @NotNull(message = "sessionId는 필수입니다.")
     private String sessionId;
 
-    @NotNull(message = "node_id는 필수입니다.")
+    @NotNull(message = "nodeId는 필수입니다.")
     private Long nodeId;
 
     @NotNull(message = "category는 필수입니다.")
