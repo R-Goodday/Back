@@ -3,6 +3,7 @@ package com.capstone.kkumteul.domain.game.service;
 import com.capstone.kkumteul.domain.game.entity.GraphEdge;
 import com.capstone.kkumteul.domain.game.entity.GraphNode;
 import com.capstone.kkumteul.domain.game.entity.NodeCategory;
+import com.capstone.kkumteul.domain.game.exception.GraphNotFoundException;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -24,7 +25,7 @@ public class GameSession {
 
     public GameSession(Long userId, Long fairytaleId, List<GraphNode> nodes, List<GraphEdge> edges) {
         if (nodes == null || nodes.isEmpty()) {
-            throw new IllegalArgumentException("게임 세션 생성에 필요한 노드가 없습니다.");
+            throw new GraphNotFoundException();
         }
         this.sessionId = UUID.randomUUID().toString();
         this.userId = userId;
