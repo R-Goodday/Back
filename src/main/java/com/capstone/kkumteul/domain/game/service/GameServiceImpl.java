@@ -178,6 +178,11 @@ public class GameServiceImpl implements GameService {
         EdgeChoice selectedChoice = edgeChoiceRepository.findById(selectedChoiceId)
                 .orElseThrow(QuizNotFoundException::new);
 
+        // 선택한 보기가 해당 엣지에 속하는지 검증
+        if (!selectedChoice.getEdge().getId().equals(edgeId)) {
+            return QuizAnswerRes.incorrect();
+        }
+
         if (!Boolean.TRUE.equals(selectedChoice.getIsAnswer())) {
             return QuizAnswerRes.incorrect();
         }
