@@ -35,6 +35,7 @@ public class AuthServiceImpl implements AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .username(request.getNickname())
                 .gender(request.getGender())
+                .age(request.getAge())
                 .role("USER")
                 .build();
 
