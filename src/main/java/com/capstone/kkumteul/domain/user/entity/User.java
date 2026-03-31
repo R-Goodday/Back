@@ -17,18 +17,22 @@ public class User extends BaseEntity {
     @Column(name = "user_id")
     private Long id;
 
-    @Column(nullable = false)
-    private String userId;
+    @Column(nullable = false, unique = true)
+    private String loginId;
 
     @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
-    private String nickname;
+    private String username;
 
-    private String age;
-
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Gender gender;
+
+    @Column(nullable = false)
+    private Integer age;
+
+    @Column(nullable = false)
+    private String role;
 }

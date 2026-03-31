@@ -3,7 +3,8 @@ package com.capstone.kkumteul.global.response.code;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import static com.capstone.kkumteul.global.constant.StaticValue.*;
+import static com.capstone.kkumteul.global.constant.StaticValue.CREATED;
+import static com.capstone.kkumteul.global.constant.StaticValue.OK;
 
 @Getter
 @AllArgsConstructor
