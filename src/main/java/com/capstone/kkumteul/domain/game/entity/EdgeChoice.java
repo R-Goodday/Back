@@ -27,6 +27,5 @@ public class EdgeChoice extends BaseEntity {
     private String content;
 
     @Column(nullable = false)
-    @Builder.Default
-    private Boolean isAnswer = false;
+    private boolean isAnswer;
 }

@@ -76,7 +76,7 @@ public class GraphService {
                 EdgeChoice choice = EdgeChoice.builder()
                         .edge(edge)
                         .content(choiceDto.getContent())
-                        .isAnswer(choiceDto.getIsAnswer())
+                        .isAnswer(choiceDto.getIsAnswer() != null && choiceDto.getIsAnswer())
                         .build();
                 edgeChoiceRepository.save(choice);
             }

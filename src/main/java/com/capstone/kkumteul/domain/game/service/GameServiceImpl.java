@@ -61,7 +61,7 @@ public class GameServiceImpl implements GameService {
         // (userId, fairytaleId) UNIQUE 조합으로 1회 플레이 제한 확인
         gameResultRepository.findByUserIdAndFairytaleId(userId, fairytaleId)
                 .ifPresent(result -> {
-                    if (Boolean.TRUE.equals(result.getCompleted())) {
+                    if (result.isCompleted()) {
                         throw new GameAlreadyCompletedException();
                     }
                 });
@@ -184,7 +184,7 @@ public class GameServiceImpl implements GameService {
             return QuizAnswerRes.incorrect();
         }
 
-        if (!Boolean.TRUE.equals(selectedChoice.getIsAnswer())) {
+        if (!selectedChoice.isAnswer()) {
             return QuizAnswerRes.incorrect();
         }
 
@@ -253,7 +253,7 @@ public class GameServiceImpl implements GameService {
     private void validateGameCompleted(Long userId, Long fairytaleId) {
         GameResult result = gameResultRepository.findByUserIdAndFairytaleId(userId, fairytaleId)
                 .orElseThrow(GameNotCompletedException::new);
-        if (!Boolean.TRUE.equals(result.getCompleted())) {
+        if (!result.isCompleted()) {
             throw new GameNotCompletedException();
         }
     }

@@ -30,6 +30,5 @@ public class GameResult extends BaseEntity {
     private Fairytale fairytale;
 
     @Column(nullable = false)
-    @Builder.Default
-    private Boolean completed = false;
+    private boolean completed;
 }
