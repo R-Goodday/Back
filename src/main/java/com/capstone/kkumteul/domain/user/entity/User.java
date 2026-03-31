@@ -33,4 +33,5 @@ public class User extends BaseEntity {
 
     @Column(nullable = false)
     private String role;
+    
 }
