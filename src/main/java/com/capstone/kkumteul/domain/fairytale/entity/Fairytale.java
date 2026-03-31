@@ -35,4 +35,7 @@ public class Fairytale extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Background background;
+
+    @Column(columnDefinition = "TEXT")
+    private String content;
 }
