@@ -17,4 +17,7 @@ public class StaticValue {
 
     /* 5xx response */
     public static final int INTERNAL_SERVER_ERROR = 500;
+
+    private StaticValue() {}
+    
 }
