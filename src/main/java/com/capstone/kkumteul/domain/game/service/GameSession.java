@@ -31,8 +31,8 @@ public class GameSession {
             this.nodeMap.put(node.getId(), SessionNode.from(node));
         }
         this.edges = edges.stream().map(SessionEdge::from).toList();
-        this.classifiedNodeIds = new HashSet<>();
-        this.completedEdgeIds = new HashSet<>();
+        this.classifiedNodeIds = ConcurrentHashMap.newKeySet();
+        this.completedEdgeIds = ConcurrentHashMap.newKeySet();
         this.quizEdgeMap = new ConcurrentHashMap<>();
         this.lastActivity = LocalDateTime.now();
     }
