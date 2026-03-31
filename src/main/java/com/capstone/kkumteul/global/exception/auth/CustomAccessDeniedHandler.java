@@ -1,11 +1,12 @@
 package com.capstone.kkumteul.global.exception.auth;
 
-import com.capstone.kkumteul.global.response.BaseResponse;
+import com.capstone.kkumteul.global.response.ErrorResponse;
 import com.capstone.kkumteul.global.response.code.ErrorResponseCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
@@ -16,7 +17,10 @@ import java.io.IOException;
  * JWT 403 - Forbidden
  */
 @Component
+@RequiredArgsConstructor
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public void handle(HttpServletRequest request,
@@ -28,8 +32,8 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType("application/json;charset=UTF-8");
 
         // ResponseBody - 403 Forbidden 으로 설정
-        BaseResponse errorResponse = BaseResponse.of(ErrorResponseCode.ACCESS_DENIED_REQUEST);
+        ErrorResponse<?> errorResponse = ErrorResponse.from(ErrorResponseCode.ACCESS_DENIED_REQUEST);
 
-        response.getWriter().write(new ObjectMapper().writeValueAsString(errorResponse.getMessage()));
+        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 }

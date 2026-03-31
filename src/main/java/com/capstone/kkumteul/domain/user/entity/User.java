@@ -29,7 +29,7 @@ public class User extends BaseEntity {
     private Gender gender;
 
     @Column(nullable = false)
-    private int age;
+    private Integer age;
 
     @Column(nullable = false)
     private String role;
