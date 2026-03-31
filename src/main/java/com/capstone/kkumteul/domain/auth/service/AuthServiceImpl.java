@@ -55,8 +55,7 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(UserNotFoundException::new);
 
         // 2. 비밀번호 검증
-        String encoded = passwordEncoder.encode(req.getPassword());
-        if(!found.getPassword().equals(encoded))
+        if(!passwordEncoder.matches(req.getPassword(), found.getPassword()))
             throw new InvalidPasswordException();
 
         // 3. JWT 발급
