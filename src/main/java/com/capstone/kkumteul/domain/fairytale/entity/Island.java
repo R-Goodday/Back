@@ -1,6 +1,5 @@
 package com.capstone.kkumteul.domain.fairytale.entity;
 
-import java.util.Arrays;
 import java.util.List;
 
 public enum Island {
@@ -26,10 +25,4 @@ public enum Island {
         return backgrounds;
     }
 
-    public static Island fromBackground(Background background) {
-        return Arrays.stream(values())
-                .filter(island -> island.backgrounds.contains(background))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("매핑되지 않은 배경: " + background));
-    }
 }
