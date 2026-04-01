@@ -38,7 +38,7 @@ public class FairytaleServiceImpl implements FairytaleService {
 
     @Override
     public FairytaleDetailRes getFairytaleDetail(Long fairytaleId) {
-        Fairytale fairytale = fairytaleRepository.findById(fairytaleId)
+        Fairytale fairytale = fairytaleRepository.findByIdWithUser(fairytaleId)
                 .orElseThrow(FairytaleNotFoundException::new);
 
         List<ParagraphRes> paragraphs = paragraphRepository.findByFairytaleIdOrderByPageAsc(fairytaleId)
