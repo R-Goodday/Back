@@ -23,7 +23,7 @@ public class UserController {
     public ResponseEntity<SuccessResponse<ProfileRes>> getProfile(
             @AuthUser User user
     ) {
-        ProfileRes res = userService.getProfile(user.getId());
+        ProfileRes res = userService.getProfile(user);
         return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.ok(res));
     }
 
@@ -32,7 +32,7 @@ public class UserController {
             @AuthUser User user,
             @Valid @RequestBody ProfileUpdateReq req
     ) {
-        ProfileRes res = userService.updateProfile(user.getId(), req);
+        ProfileRes res = userService.updateProfile(user, req);
         return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.ok(res));
     }
 }
