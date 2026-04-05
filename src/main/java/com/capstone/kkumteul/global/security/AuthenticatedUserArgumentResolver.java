@@ -1,7 +1,6 @@
 package com.capstone.kkumteul.global.security;
 
 import com.capstone.kkumteul.domain.user.entity.User;
-import com.capstone.kkumteul.domain.user.exception.UserNotFoundException;
 import com.capstone.kkumteul.global.exception.BaseException;
 import com.capstone.kkumteul.global.response.code.ErrorResponseCode;
 import lombok.RequiredArgsConstructor;
@@ -73,9 +72,10 @@ public class AuthenticatedUserArgumentResolver implements HandlerMethodArgumentR
         // SecurityContextHolder에서 Authentication 객체 추출
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // 인증 정보가 없거나 인증되지 않은 경우 예외 발생
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new BaseException(ErrorResponseCode.BAD_REQUEST_ERROR);
+        // 인증 정보가 없거나, 인증되지 않았거나, 익명 사용자인 경우 예외 발생
+        if (authentication == null || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getPrincipal())) {
+            throw new BaseException(ErrorResponseCode.UNAUTHORIZED_ERROR);
         }
 
         // Principal 객체 추출
@@ -86,7 +86,7 @@ public class AuthenticatedUserArgumentResolver implements HandlerMethodArgumentR
             return userDetails.getUser();
         }
 
-        // 예상하지 못한 Principal 타입인 경우 사용자를 찾을 수 없음 예외 발생
-        throw new UserNotFoundException();
+        // 예상하지 못한 Principal 타입인 경우 인증 실패 예외 발생
+        throw new BaseException(ErrorResponseCode.UNAUTHORIZED_ERROR);
     }
 }
