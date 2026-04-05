@@ -11,6 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -68,6 +69,21 @@ public class GlobalExceptionHandler {
     ) {
         log.error("MethodArgumentTypeMismatchException : {}", e.getMessage(), e);
         ErrorResponse<?> errorResponse = ErrorResponse.from(ErrorResponseCode.INVALID_HTTP_MESSAGE_PARAMETER);
+        return ResponseEntity.status(errorResponse.getHttpStatus()).body(errorResponse);
+    }
+
+    /**
+     * 필수 쿼리 파라미터 누락 시 발생
+     */
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse<?>> handleMissingServletRequestParameterException(
+            MissingServletRequestParameterException e
+    ) {
+        log.error("MissingServletRequestParameterException : {}", e.getMessage(), e);
+        ErrorResponse<?> errorResponse = ErrorResponse.of(
+                ErrorResponseCode.INVALID_HTTP_MESSAGE_PARAMETER,
+                e.getParameterName() + " 파라미터가 필요합니다."
+        );
         return ResponseEntity.status(errorResponse.getHttpStatus()).body(errorResponse);
     }
 
