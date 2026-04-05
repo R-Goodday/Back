@@ -31,6 +31,6 @@ public class CustomAuthenticationEntryPointHandler implements AuthenticationEntr
         BaseResponse errorResponse = BaseResponse.of(ErrorResponseCode.UNAUTHORIZED_ERROR);
         response.setContentType("application/json;charset=UTF-8");
 
-        response.getWriter().write(new ObjectMapper().writeValueAsString(errorResponse.getMessage()));
+        response.getWriter().write(new ObjectMapper().writeValueAsString(errorResponse));
     }
 }
