@@ -17,6 +17,7 @@
 | `ci`       | `ci/#ISSUE_NUM￼`       | 🔄 CI 관련 수정      |
 | `cd`       | `cd/#ISSUE_NUM￼`       | 🔄 CD 관련 수정      |
 | `revert`   | `revert/#ISSUE_NUM￼`   | ⚠️ 특정 커밋으로 되돌리기  |
+| `docker`   | `docker/#ISSUE_NUM￼`   | 🐳 도커 파일 관련 작업 |
 ## 📌 Git Branch Strategy
 | branch    | role                                   |
 |-----------|----------------------------------------|
