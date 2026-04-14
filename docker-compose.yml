@@ -1,0 +1,31 @@
+services:
+  backend:
+    image: ${BACKEND_IMAGE}
+    container_name: backend
+    restart: always
+    env_file:
+      - .env
+    expose:
+      - "8080"
+    networks:
+      - kkumteul
+
+  nginx:
+    image: nginx:stable
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
+    depends_on:
+      - backend
+    networks:
+      - kkumteul
+
+networks:
+  kkumteul:
+    driver: bridge
