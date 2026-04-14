@@ -38,6 +38,12 @@ out/
 
 ### Environment ###
 src/main/resources/application.properties
+.env
+.env.*
+!.env.example
 
 ### MacOS ###
 .DS_Store
+
+### OMC ###
+.omc/
