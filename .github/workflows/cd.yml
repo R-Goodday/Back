@@ -1,0 +1,54 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  IMAGE: ${{ secrets.DOCKER_USERNAME }}/kkumteul-backend
+
+jobs:
+  deploy:
+    name: Deploy to EC2
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Copy deploy files to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: 22
+          source: "docker-compose.yml,nginx/conf.d/default.conf"
+          target: "/home/${{ secrets.SERVER_USER }}/app"
+
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: 22
+          envs: IMAGE
+          script: |
+            cd /home/${{ secrets.SERVER_USER }}/app
+            echo "${{ secrets.ENV_FILE }}" > .env
+            echo "BACKEND_IMAGE=${IMAGE}:latest" >> .env
+
+            echo "[1/3] Pull latest image..."
+            docker pull ${IMAGE}:latest
+
+            echo "[2/3] Restart with docker compose..."
+            docker compose up -d --remove-orphans
+
+            echo "[3/3] Cleanup unused images..."
+            docker image prune -f
