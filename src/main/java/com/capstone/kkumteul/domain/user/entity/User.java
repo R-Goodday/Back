@@ -34,5 +34,9 @@ public class User extends BaseEntity {
 
     @Column(nullable = false)
     private String role;
-    
+
+    public void updateProfile(Gender gender, Integer age) {
+        this.gender = gender;
+        this.age = age;
+    }
 }
