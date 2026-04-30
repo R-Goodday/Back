@@ -45,5 +45,6 @@ src/main/resources/application.properties
 ### MacOS ###
 .DS_Store
 
-### OMC ###
-.omc/
+### Claude Code ###
+.omc
+

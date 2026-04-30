@@ -1,7 +1,7 @@
 package com.capstone.kkumteul.global.response;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.capstone.kkumteul.global.response.code.BaseResponseCode;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -21,7 +21,6 @@ public class ErrorResponse<T> extends BaseResponse {
         this.data = data;
     }
 
-    @Builder
     public ErrorResponse(T data, BaseResponseCode baseResponseCode, String message) {
         super(false, baseResponseCode.getCode(), message);
         this.httpStatus = baseResponseCode.getHttpStatus();
