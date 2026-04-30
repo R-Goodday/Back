@@ -3,8 +3,8 @@ services:
     image: ${BACKEND_IMAGE}
     container_name: backend
     restart: always
-    env_file:
-      - .env
+    volumes:
+      - ./application.properties:/app/config/application.properties:ro
     expose:
       - "8080"
     networks:
