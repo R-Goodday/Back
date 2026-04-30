@@ -7,6 +7,19 @@ services:
       - ./application.properties:/app/config/application.properties:ro
     expose:
       - "8080"
+    depends_on:
+      - fastapi
+    networks:
+      - kkumteul
+
+  fastapi:
+    image: ${FASTAPI_IMAGE}
+    container_name: fastapi
+    restart: always
+    env_file:
+      - .env.fastapi
+    expose:
+      - "8000"
     networks:
       - kkumteul
 
