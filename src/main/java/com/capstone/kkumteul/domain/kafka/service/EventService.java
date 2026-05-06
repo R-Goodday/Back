@@ -2,6 +2,7 @@ package com.capstone.kkumteul.domain.kafka.service;
 
 import com.capstone.kkumteul.domain.fairytale.web.dto.FairytaleGenerateReq;
 import com.capstone.kkumteul.domain.kafka.dto.FairytaleGenerateMessage;
+import com.capstone.kkumteul.domain.kafka.dto.MessageInterface;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EventService {
 
-    private final KafkaTemplate<String, FairytaleGenerateMessage> kafkaTemplate;
+    private final KafkaTemplate<String, MessageInterface> kafkaTemplate;
 
     public void commentMessageCreate(Long userId, FairytaleGenerateReq request) {
 
