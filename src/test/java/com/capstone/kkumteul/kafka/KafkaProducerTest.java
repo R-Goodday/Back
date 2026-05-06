@@ -18,8 +18,7 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(
-        classes = KafkaProducerConfig.class,
-        properties = "KAFKA_URL=52.78.205.133:9092"
+        classes = KafkaProducerConfig.class
 )
 class KafkaProducerTest {
 
