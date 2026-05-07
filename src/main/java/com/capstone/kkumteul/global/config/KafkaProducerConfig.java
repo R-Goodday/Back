@@ -1,6 +1,5 @@
 package com.capstone.kkumteul.global.config;
 
-import com.capstone.kkumteul.domain.kafka.dto.FairytaleGenerateMessage;
 import com.capstone.kkumteul.domain.kafka.dto.MessageInterface;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;

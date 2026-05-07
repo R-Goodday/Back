@@ -5,6 +5,7 @@ import com.capstone.kkumteul.domain.kafka.dto.FairytaleGenerateMessage;
 import com.capstone.kkumteul.domain.kafka.dto.MessageInterface;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,9 @@ public class EventService {
 
     private final KafkaTemplate<String, MessageInterface> kafkaTemplate;
 
+    @Value("${FAIRYTALE_GENERATION}")
+    private String FAIRYTALE_GENERATION;
+
     public void createFairytaleMessageSend(Long userId, FairytaleGenerateReq request) {
 
         FairytaleGenerateMessage message = FairytaleGenerateMessage.builder()
@@ -28,7 +32,12 @@ public class EventService {
 
         log.info("fairytale_generate userId={}, message={}", userId, message);
 
-        kafkaTemplate.send("fairytale_generate", message);
+        kafkaTemplate.send(FAIRYTALE_GENERATION, message)
+                .whenComplete((result, e) -> {
+                    if (e != null) {
+                        log.error("fairytale_generate failed", e);
+                    }
+                });
 
     }
 }

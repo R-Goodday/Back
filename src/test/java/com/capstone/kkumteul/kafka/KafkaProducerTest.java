@@ -6,6 +6,7 @@ import com.capstone.kkumteul.domain.fairytale.entity.Morality;
 import com.capstone.kkumteul.domain.kafka.dto.FairytaleGenerateMessage;
 import com.capstone.kkumteul.domain.kafka.dto.MessageInterface;
 import com.capstone.kkumteul.global.config.KafkaProducerConfig;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Slf4j
 @SpringBootTest(
         classes = KafkaProducerConfig.class
 )
@@ -43,8 +45,8 @@ class KafkaProducerTest {
         assertThat(result.getRecordMetadata().topic()).isEqualTo("fairytale_generate");
         assertThat(result.getRecordMetadata().offset()).isGreaterThanOrEqualTo(0);
 
-        System.out.println("토픽: " + result.getRecordMetadata().topic());
-        System.out.println("파티션: " + result.getRecordMetadata().partition());
-        System.out.println("오프셋: " + result.getRecordMetadata().offset());
+        log.info("토픽: {}", result.getRecordMetadata().topic());
+        log.info("파티션: {}", result.getRecordMetadata().partition());
+        log.info("오프셋: {}", result.getRecordMetadata().offset());
     }
 }
