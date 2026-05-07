@@ -17,7 +17,7 @@ public class EventService {
 
     private final KafkaTemplate<String, MessageInterface> kafkaTemplate;
 
-    public void commentMessageCreate(Long userId, FairytaleGenerateReq request) {
+    public void createFairytaleMessageSend(Long userId, FairytaleGenerateReq request) {
 
         FairytaleGenerateMessage message = FairytaleGenerateMessage.builder()
                 .userId(userId)
