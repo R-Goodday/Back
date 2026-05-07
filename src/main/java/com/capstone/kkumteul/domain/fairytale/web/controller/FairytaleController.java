@@ -3,10 +3,13 @@ package com.capstone.kkumteul.domain.fairytale.web.controller;
 import com.capstone.kkumteul.domain.fairytale.entity.Island;
 import com.capstone.kkumteul.domain.fairytale.service.FairytaleService;
 import com.capstone.kkumteul.domain.fairytale.web.dto.FairytaleDetailRes;
+import com.capstone.kkumteul.domain.fairytale.web.dto.FairytaleGenerateReq;
 import com.capstone.kkumteul.domain.fairytale.web.dto.FairytaleListRes;
+import com.capstone.kkumteul.domain.kafka.service.EventService;
 import com.capstone.kkumteul.domain.user.entity.User;
 import com.capstone.kkumteul.global.response.SuccessResponse;
 import com.capstone.kkumteul.global.security.AuthUser;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +24,19 @@ import org.springframework.web.bind.annotation.*;
 public class FairytaleController {
 
     private final FairytaleService fairytaleService;
+    private final EventService eventService;
+
+    @PostMapping
+    public ResponseEntity<SuccessResponse<?>> createFairytale(
+            @AuthUser User user,
+            @Valid @RequestBody FairytaleGenerateReq request
+    ) {
+        eventService.createFairytaleMessageSend(user.getId(), request);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(SuccessResponse.empty());
+    }
 
     @GetMapping("/my")
     public ResponseEntity<SuccessResponse<Page<FairytaleListRes>>> getMyFairytales(
