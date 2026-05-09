@@ -1,5 +1,6 @@
 package com.capstone.kkumteul.domain.vocab.web.dto;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
@@ -10,5 +11,6 @@ public class InternalVocabProcessReq {
     private Long fairytaleId;
 
     @NotNull
+    @Min(1)
     private Integer pageNo;
 }
