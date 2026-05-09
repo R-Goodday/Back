@@ -1,7 +1,6 @@
 package com.capstone.kkumteul.domain.vocab.web.controller;
 
 import com.capstone.kkumteul.domain.user.entity.User;
-import com.capstone.kkumteul.domain.vocab.entity.WordEntry;
 import com.capstone.kkumteul.domain.vocab.service.VocabService;
 import com.capstone.kkumteul.domain.vocab.web.dto.WordEntryRes;
 import com.capstone.kkumteul.global.response.SuccessResponse;
@@ -29,8 +28,8 @@ public class VocabController {
             @AuthUser User user,
             @PathVariable Long fairytaleId
     ) {
-        List<WordEntry> entries = vocabService.getVocab(user.getId(), fairytaleId);
+        List<WordEntryRes> entries = vocabService.getVocab(user.getId(), fairytaleId);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(SuccessResponse.ok(WordEntryRes.listOf(entries)));
+                .body(SuccessResponse.ok(entries));
     }
 }

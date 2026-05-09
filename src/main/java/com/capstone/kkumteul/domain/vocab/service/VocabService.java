@@ -1,15 +1,12 @@
 package com.capstone.kkumteul.domain.vocab.service;
 
-import com.capstone.kkumteul.domain.vocab.entity.WordEntry;
 import com.capstone.kkumteul.domain.vocab.service.dto.VocabExtractionResult;
+import com.capstone.kkumteul.domain.vocab.web.dto.WordEntryRes;
 
 import java.util.List;
 
 /**
  * 단어장 추출/조회 서비스.
- *
- * <p>이 인터페이스는 carrier-agnostic 하다 (web/dto, kafka/message에 의존하지 않음).
- * REST controller / KafkaListener / 그 외 어떤 어댑터든 동일 시그니처로 호출 가능.</p>
  */
 public interface VocabService {
 
@@ -29,5 +26,5 @@ public interface VocabService {
      * @param userId      요청자 (소유권 검증용)
      * @param fairytaleId 동화 ID
      */
-    List<WordEntry> getVocab(Long userId, Long fairytaleId);
+    List<WordEntryRes> getVocab(Long userId, Long fairytaleId);
 }
