@@ -7,13 +7,16 @@ import com.capstone.kkumteul.domain.fairytale.web.dto.FairytaleListRes;
 import com.capstone.kkumteul.domain.user.entity.User;
 import com.capstone.kkumteul.global.response.SuccessResponse;
 import com.capstone.kkumteul.global.security.AuthUser;
+import com.capstone.kkumteul.domain.fairytale.service.sse.SseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 public class FairytaleController {
 
     private final FairytaleService fairytaleService;
+    private final SseService sseService;
 
     @GetMapping("/my")
     public ResponseEntity<SuccessResponse<Page<FairytaleListRes>>> getMyFairytales(
@@ -48,5 +52,10 @@ public class FairytaleController {
     ) {
         FairytaleDetailRes res = fairytaleService.getFairytaleDetail(fairytaleId);
         return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.ok(res));
+    }
+
+    @GetMapping(value="/{fairytaleId}/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter subscribe(@PathVariable Long fairytaleId){
+        return sseService.subscribe(fairytaleId);
     }
 }
