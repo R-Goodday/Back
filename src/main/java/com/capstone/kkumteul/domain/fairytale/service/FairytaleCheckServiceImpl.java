@@ -74,5 +74,8 @@ public class FairytaleCheckServiceImpl implements FairytaleCheckService {
         );
 
         sseService.sendToClient(fairytaleId, "page_content", event);
+
+        redisTemplate.delete(String.format(VOCAB_KEY, fairytaleId, page));
+        redisTemplate.delete(String.format(IMAGE_KEY, fairytaleId, page));
     }
 }
