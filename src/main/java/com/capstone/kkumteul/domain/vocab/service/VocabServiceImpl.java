@@ -2,6 +2,7 @@ package com.capstone.kkumteul.domain.vocab.service;
 
 import com.capstone.kkumteul.domain.fairytale.entity.Fairytale;
 import com.capstone.kkumteul.domain.fairytale.exception.FairytaleNotFoundException;
+import com.capstone.kkumteul.domain.fairytale.service.FairytaleCheckService;
 import com.capstone.kkumteul.domain.vocab.entity.WordEntry;
 import com.capstone.kkumteul.domain.vocab.exception.VocabForbiddenException;
 import com.capstone.kkumteul.domain.vocab.repository.WordEntryRepository;
@@ -28,6 +29,7 @@ public class VocabServiceImpl implements VocabService {
     private final WordEntryRepository wordEntryRepository;
     private final VocabExtractClient vocabExtractClient;
     private final EntityManager entityManager;
+    private final FairytaleCheckService fairytaleCheckService;
 
     /**
      * 페이지 3문장 → LLM으로 단어 추출 → 풀이 생성 → DB 저장.
@@ -71,6 +73,7 @@ public class VocabServiceImpl implements VocabService {
 
         try {
             WordEntry saved = wordEntryRepository.save(entry);
+            fairytaleCheckService.markVocabDone(fairytaleId, pageNo);
             return VocabExtractionResult.saved(saved);
         } catch (DataIntegrityViolationException e) {
             log.info("vocab race condition fairytaleId={}, word={}", fairytaleId, word);
