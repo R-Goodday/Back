@@ -2,13 +2,14 @@ package com.capstone.kkumteul.domain.vocab.service;
 
 import com.capstone.kkumteul.domain.fairytale.entity.Fairytale;
 import com.capstone.kkumteul.domain.fairytale.exception.FairytaleNotFoundException;
+import com.capstone.kkumteul.domain.fairytale.repository.FairytaleRepository;
 import com.capstone.kkumteul.domain.vocab.entity.WordEntry;
 import com.capstone.kkumteul.domain.vocab.exception.VocabForbiddenException;
 import com.capstone.kkumteul.domain.vocab.repository.WordEntryRepository;
 import com.capstone.kkumteul.domain.vocab.service.dto.VocabExtractionResult;
+import com.capstone.kkumteul.domain.vocab.web.dto.WordEntryRes;
 import com.capstone.kkumteul.global.client.VocabExtractClient;
 import com.capstone.kkumteul.global.client.dto.VocabExtractResponse;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -27,7 +28,7 @@ public class VocabServiceImpl implements VocabService {
 
     private final WordEntryRepository wordEntryRepository;
     private final VocabExtractClient vocabExtractClient;
-    private final EntityManager entityManager;
+    private final FairytaleRepository fairytaleRepository;
 
     /**
      * 페이지 3문장 → LLM으로 단어 추출 → 풀이 생성 → DB 저장.
@@ -61,7 +62,8 @@ public class VocabServiceImpl implements VocabService {
             return VocabExtractionResult.duplicate();
         }
 
-        Fairytale fairytale = entityManager.getReference(Fairytale.class, fairytaleId);
+        Fairytale fairytale = fairytaleRepository.findById(fairytaleId)
+                .orElseThrow(FairytaleNotFoundException::new);
         WordEntry entry = WordEntry.builder()
                 .fairytale(fairytale)
                 .pageNo(pageNo)
@@ -83,15 +85,13 @@ public class VocabServiceImpl implements VocabService {
      * 동화 소유권 검증 후 페이지 순서로 반환.
      */
     @Override
-    public List<WordEntry> getVocab(Long userId, Long fairytaleId) {
-        Fairytale fairytale = entityManager.find(Fairytale.class, fairytaleId);
-        if (fairytale == null) {
-            throw new FairytaleNotFoundException();
-        }
+    public List<WordEntryRes> getVocab(Long userId, Long fairytaleId) {
+        Fairytale fairytale = fairytaleRepository.findById(fairytaleId)
+                .orElseThrow(FairytaleNotFoundException::new);
         Objects.requireNonNull(fairytale.getUser(), "Fairytale.user는 null이 될 수 없음");
         if (!fairytale.getUser().getId().equals(userId)) {
             throw new VocabForbiddenException();
         }
-        return wordEntryRepository.findByFairytaleIdOrderByPageNoAsc(fairytaleId);
+        return WordEntryRes.listOf(wordEntryRepository.findByFairytaleIdOrderByPageNoAsc(fairytaleId));
     }
 }
