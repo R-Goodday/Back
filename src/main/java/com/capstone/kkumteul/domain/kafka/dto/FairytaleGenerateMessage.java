@@ -14,6 +14,7 @@ public class FairytaleGenerateMessage implements MessageInterface {
 
      private final Long userId;
 
+     private final Long fairytaleId;
      private final Background background;
      private final CharSpecies charSpecies;
      private final Morality morality;

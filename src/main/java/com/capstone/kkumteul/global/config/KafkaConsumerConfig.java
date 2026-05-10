@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
@@ -27,11 +28,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * vocab_extracted 토픽 Consumer 인프라.
+ * Kafka Consumer 인프라.
  *
- * <p>역직렬화 실패(poison pill)로 listener thread가 죽지 않도록 ErrorHandlingDeserializer로 wrap한다.
- * 재시도 후에도 실패하면 DLT로 보내기 직전 markVocabDone을 호출해 SSE hang을 방지한다.</p>
+ * <p>두 가지 컨슈머를 등록:</p>
+ * <ul>
+ *   <li>기본 String 컨슈머 — 일반 텍스트 메시지용 (기존 develop 컨벤션)</li>
+ *   <li>vocab_extracted 전용 JSON 컨슈머 — ErrorHandlingDeserializer wrap, DLT recoverer가
+ *   DLT publish 직전 markVocabDone 호출해 SSE hang 방지</li>
+ * </ul>
  */
+@EnableKafka
 @Configuration
 @Profile("!dev")
 public class KafkaConsumerConfig {
@@ -48,6 +54,23 @@ public class KafkaConsumerConfig {
         this.kafkaUrl = kafkaUrl;
         this.vocabGroupId = vocabGroupId;
         this.fairytaleCheckService = fairytaleCheckService;
+    }
+
+    @Bean
+    public ConsumerFactory<String, String> consumerFactory() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaUrl);
+        config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        return new DefaultKafkaConsumerFactory<>(config);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory());
+        return factory;
     }
 
     @Bean

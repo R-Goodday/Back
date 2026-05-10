@@ -32,6 +32,8 @@ public class FairytaleCheckServiceImpl implements FairytaleCheckService {
 
     private static final String VOCAB_KEY = "vocab:%d:%d";
     private static final String IMAGE_KEY = "image:%d:%d";
+    private static final String TOTAL_KEY = "total:%d";
+    private static final String SENT_KEY = "sent:%d";
     private static final String DONE = "done";
 
     @Override
@@ -105,5 +107,28 @@ public class FairytaleCheckServiceImpl implements FairytaleCheckService {
 
         redisTemplate.delete(String.format(VOCAB_KEY, fairytaleId, page));
         redisTemplate.delete(String.format(IMAGE_KEY, fairytaleId, page));
+
+        Long sent = redisTemplate.opsForValue().increment(String.format(SENT_KEY, fairytaleId));
+        checkAndSendDone(fairytaleId, sent);
+    }
+
+    @Override
+    public void markTotalPages(Long fairytaleId, int totalPages) {
+        redisTemplate.opsForValue().set(String.format(TOTAL_KEY, fairytaleId), String.valueOf(totalPages));
+        String sentStr = redisTemplate.opsForValue().get(String.format(SENT_KEY, fairytaleId));
+        long sent = sentStr == null ? 0L : Long.parseLong(sentStr);
+        checkAndSendDone(fairytaleId, sent);
+    }
+
+    private void checkAndSendDone(Long fairytaleId, Long sent) {
+        String totalStr = redisTemplate.opsForValue().get(String.format(TOTAL_KEY, fairytaleId));
+        if (totalStr == null) return;
+
+        if (sent >= Long.parseLong(totalStr)) {
+            sseService.sendToClient(fairytaleId, "done", String.valueOf(fairytaleId));
+            redisTemplate.delete(String.format(TOTAL_KEY, fairytaleId));
+            redisTemplate.delete(String.format(SENT_KEY, fairytaleId));
+            log.info("SSE done 전송 fairytaleId={}", fairytaleId);
+        }
     }
 }
