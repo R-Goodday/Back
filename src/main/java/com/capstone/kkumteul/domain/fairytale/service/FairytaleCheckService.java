@@ -7,4 +7,6 @@ public interface FairytaleCheckService {
     void markImageDone(Long fairytaleId, int page);
 
     boolean isBothDone(Long fairytaleId, int page);
+
+    void markTotalPages(Long fairytaleId, int totalPages);
 }
