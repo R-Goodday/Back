@@ -9,6 +9,7 @@ import com.capstone.kkumteul.domain.game.entity.NodeCategory;
 import com.capstone.kkumteul.domain.game.entity.EdgeChoice;
 import com.capstone.kkumteul.domain.game.entity.GameResult;
 import com.capstone.kkumteul.domain.fairytale.exception.FairytaleNotFoundException;
+import com.capstone.kkumteul.domain.game.entity.*;
 import com.capstone.kkumteul.domain.game.exception.*;
 import com.capstone.kkumteul.domain.game.repository.EdgeChoiceRepository;
 import com.capstone.kkumteul.domain.game.repository.GameResultRepository;

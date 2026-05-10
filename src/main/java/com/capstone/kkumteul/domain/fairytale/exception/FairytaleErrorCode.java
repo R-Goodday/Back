@@ -4,7 +4,7 @@ import com.capstone.kkumteul.global.response.code.BaseResponseCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import static com.capstone.kkumteul.global.constant.StaticValue.*;
+import static com.capstone.kkumteul.global.constant.StaticValue.NOT_FOUND;
 
 @Getter
 @AllArgsConstructor
