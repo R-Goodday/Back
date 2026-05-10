@@ -8,9 +8,12 @@ import com.capstone.kkumteul.domain.vocab.entity.WordEntry;
 import com.capstone.kkumteul.domain.vocab.repository.WordEntryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +26,9 @@ public class FairytaleCheckServiceImpl implements FairytaleCheckService {
     private final SseService sseService;
     private final WordEntryRepository wordEntryRepository;
     private final ParagraphRepository paragraphRepository;
+
+    @Value("${vocab.fallback-threshold-seconds:300}")
+    private long vocabFallbackThresholdSeconds;
 
     private static final String VOCAB_KEY = "vocab:%d:%d";
     private static final String IMAGE_KEY = "image:%d:%d";
@@ -39,7 +45,28 @@ public class FairytaleCheckServiceImpl implements FairytaleCheckService {
     @Override
     public void markImageDone(Long fairytaleId, int page) {
         redisTemplate.opsForValue().set(String.format(IMAGE_KEY, fairytaleId, page), DONE);
+        forceVocabIfStale(fairytaleId, page);
         checkAndSend(fairytaleId, page);
+    }
+
+    /**
+     * image done 시점에 vocab 마커가 없고 paragraph 생성 후 임계 초과면 빈 vocab으로 강제 mark.
+     * AI Producer가 vocab_extracted를 누락한 경우의 SSE hang을 방지한다.
+     */
+    private void forceVocabIfStale(Long fairytaleId, int page) {
+        String vocabKey = String.format(VOCAB_KEY, fairytaleId, page);
+        if (redisTemplate.opsForValue().get(vocabKey) != null) return;
+
+        List<Paragraph> paragraphs = paragraphRepository.findByFairytaleIdAndPage(fairytaleId, page);
+        if (paragraphs.isEmpty()) return;
+
+        LocalDateTime created = paragraphs.getFirst().getCreatedAt();
+        if (created == null) return;
+        long ageSeconds = Duration.between(created, LocalDateTime.now()).getSeconds();
+        if (ageSeconds < vocabFallbackThresholdSeconds) return;
+
+        log.warn("vocab fallback fired fairytaleId={}, page={}, ageSeconds={}", fairytaleId, page, ageSeconds);
+        redisTemplate.opsForValue().set(vocabKey, DONE);
     }
 
     @Override

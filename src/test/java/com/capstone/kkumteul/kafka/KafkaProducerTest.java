@@ -7,7 +7,9 @@ import com.capstone.kkumteul.domain.kafka.dto.FairytaleGenerateMessage;
 import com.capstone.kkumteul.domain.kafka.dto.MessageInterface;
 import com.capstone.kkumteul.global.config.KafkaProducerConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -19,6 +21,8 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
+@Tag("kafka-broker")
+@EnabledIfEnvironmentVariable(named = "KAFKA_URL", matches = ".+")
 @SpringBootTest(
         classes = KafkaProducerConfig.class
 )
