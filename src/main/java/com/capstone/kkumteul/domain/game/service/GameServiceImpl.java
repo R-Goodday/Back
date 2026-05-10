@@ -1,6 +1,8 @@
 package com.capstone.kkumteul.domain.game.service;
 
 import com.capstone.kkumteul.domain.fairytale.entity.Fairytale;
+import com.capstone.kkumteul.domain.fairytale.entity.Paragraph;
+import com.capstone.kkumteul.domain.fairytale.repository.ParagraphRepository;
 import com.capstone.kkumteul.domain.game.entity.GraphEdge;
 import com.capstone.kkumteul.domain.game.entity.GraphNode;
 import com.capstone.kkumteul.domain.game.entity.NodeCategory;
@@ -36,6 +38,7 @@ public class GameServiceImpl implements GameService {
     private final GameSessionManager sessionManager;
     private final EntityManager entityManager;
     private final GraphService graphService;
+    private final ParagraphRepository paragraphRepository;
 
     /**
      * 게임 시작 — POST /game/start
@@ -69,7 +72,11 @@ public class GameServiceImpl implements GameService {
         // graph_nodes 테이블에서 fairytaleId로 그래프 존재 확인 → 없으면 FastAPI 호출
         if (!graphNodeRepository.existsByFairytaleId(fairytaleId)) {
             log.info("그래프 미존재 — FastAPI 추출 호출: fairytaleId={}", fairytaleId);
-            graphService.extractAndSave(fairytale, fairytale.getContent());
+            List<Paragraph> paragraphs = paragraphRepository.findByFairytaleIdOrderByPageAsc(fairytaleId);
+            String content = paragraphs.stream()
+                    .map(Paragraph::getText)
+                    .collect(java.util.stream.Collectors.joining(" "));
+            graphService.extractAndSave(fairytale, content);
         }
 
         // 기존 세션 제거 — 뒤로 가기 후 재진입 시 새 세션으로 처음부터

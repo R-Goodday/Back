@@ -54,23 +54,24 @@ public class FairytaleCheckServiceImpl implements FairytaleCheckService {
         Optional<WordEntry> wordEntry = wordEntryRepository.findByFairytaleIdAndPageNo(fairytaleId, page);
         List<Paragraph> paragraphs = paragraphRepository.findByFairytaleIdAndPage(fairytaleId, page);
 
-        if (wordEntry.isEmpty() || paragraphs.isEmpty()) {
-            log.warn("SSE 발송 실패 - 데이터 없음 fairytaleId={}, page={}", fairytaleId, page);
+        if (paragraphs.isEmpty()) {
+            sseService.sendToClient(fairytaleId, "error", "문단 데이터 없음");
+            log.warn("SSE 발송 실패 - 문단 없음 fairytaleId={}, page={}", fairytaleId, page);
             return;
         }
 
-        WordEntry word = wordEntry.get();
-
-        List<String> sentences = paragraphs.stream()
-                .map(Paragraph::getText)
-                .toList();
+        Paragraph paragraph = paragraphs.getFirst();
+        List<String> sentences = List.of(paragraph.getText().split("\n"));
+        SseEventRes.Vocabulary vocab = wordEntry
+                .map(w -> new SseEventRes.Vocabulary(w.getWord(), w.getMeaning()))
+                .orElse(null);
 
         SseEventRes event = new SseEventRes(
                 fairytaleId,
                 page,
                 sentences,
-                new SseEventRes.Vocabulary(word.getWord(), word.getMeaning()),
-                paragraphs.getFirst().getImageUrl()
+                vocab,
+                paragraph.getImageUrl()
         );
 
         sseService.sendToClient(fairytaleId, "page_content", event);
