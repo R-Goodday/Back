@@ -3,6 +3,7 @@ package com.capstone.kkumteul.domain.vocab.service;
 import com.capstone.kkumteul.domain.fairytale.entity.Fairytale;
 import com.capstone.kkumteul.domain.fairytale.exception.FairytaleNotFoundException;
 import com.capstone.kkumteul.domain.fairytale.repository.FairytaleRepository;
+import com.capstone.kkumteul.domain.fairytale.service.FairytaleCheckService;
 import com.capstone.kkumteul.domain.vocab.entity.WordEntry;
 import com.capstone.kkumteul.domain.vocab.exception.VocabForbiddenException;
 import com.capstone.kkumteul.domain.vocab.repository.WordEntryRepository;
@@ -29,6 +30,7 @@ public class VocabServiceImpl implements VocabService {
     private final WordEntryRepository wordEntryRepository;
     private final VocabExtractClient vocabExtractClient;
     private final FairytaleRepository fairytaleRepository;
+    private final FairytaleCheckService fairytaleCheckService;
 
     /**
      * 페이지 3문장 → LLM으로 단어 추출 → 풀이 생성 → DB 저장.
@@ -48,6 +50,7 @@ public class VocabServiceImpl implements VocabService {
     public VocabExtractionResult processSentences(Long fairytaleId, int pageNo, List<String> sentences) {
         Optional<VocabExtractResponse> extracted = vocabExtractClient.extract(sentences);
         if (extracted.isEmpty()) {
+            fairytaleCheckService.markVocabDone(fairytaleId, pageNo);
             return VocabExtractionResult.extractionFailed();
         }
 
@@ -55,10 +58,12 @@ public class VocabServiceImpl implements VocabService {
         String word = response.getWord();
         String meaning = response.getMeaning();
         if (word == null || word.isBlank() || meaning == null || meaning.isBlank()) {
+            fairytaleCheckService.markVocabDone(fairytaleId, pageNo);
             return VocabExtractionResult.noDifficultWord();
         }
 
         if (wordEntryRepository.existsByFairytaleIdAndWord(fairytaleId, word)) {
+            fairytaleCheckService.markVocabDone(fairytaleId, pageNo);
             return VocabExtractionResult.duplicate();
         }
 
@@ -73,6 +78,7 @@ public class VocabServiceImpl implements VocabService {
 
         try {
             WordEntry saved = wordEntryRepository.save(entry);
+            fairytaleCheckService.markVocabDone(fairytaleId, pageNo);
             return VocabExtractionResult.saved(saved);
         } catch (DataIntegrityViolationException e) {
             log.info("vocab race condition fairytaleId={}, word={}", fairytaleId, word);

@@ -52,7 +52,7 @@ public class InternalVocabController {
         if (paragraphs.isEmpty()) {
             throw new ParagraphNotFoundForVocabException();
         }
-        List<String> sentences = paragraphs.stream().map(Paragraph::getText).toList();
+        List<String> sentences = List.of(paragraphs.getFirst().getText().split("\n"));
 
         VocabExtractionResult result = vocabService.processSentences(
                 req.getFairytaleId(), req.getPageNo(), sentences

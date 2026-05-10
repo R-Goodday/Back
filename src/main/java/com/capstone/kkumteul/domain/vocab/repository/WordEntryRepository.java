@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface WordEntryRepository extends JpaRepository<WordEntry, Long> {
@@ -14,4 +15,6 @@ public interface WordEntryRepository extends JpaRepository<WordEntry, Long> {
 
     /** 본인 동화 누적 단어장 조회 — 페이지 순서로 정렬 */
     List<WordEntry> findByFairytaleIdOrderByPageNoAsc(Long fairytaleId);
+
+    Optional<WordEntry> findByFairytaleIdAndPageNo(Long fairytaleId, int pageNo);
 }
