@@ -50,6 +50,7 @@ public class VocabServiceImpl implements VocabService {
     public VocabExtractionResult processSentences(Long fairytaleId, int pageNo, List<String> sentences) {
         Optional<VocabExtractResponse> extracted = vocabExtractClient.extract(sentences);
         if (extracted.isEmpty()) {
+            fairytaleCheckService.markVocabDone(fairytaleId, pageNo);
             return VocabExtractionResult.extractionFailed();
         }
 
@@ -57,10 +58,12 @@ public class VocabServiceImpl implements VocabService {
         String word = response.getWord();
         String meaning = response.getMeaning();
         if (word == null || word.isBlank() || meaning == null || meaning.isBlank()) {
+            fairytaleCheckService.markVocabDone(fairytaleId, pageNo);
             return VocabExtractionResult.noDifficultWord();
         }
 
         if (wordEntryRepository.existsByFairytaleIdAndWord(fairytaleId, word)) {
+            fairytaleCheckService.markVocabDone(fairytaleId, pageNo);
             return VocabExtractionResult.duplicate();
         }
 
