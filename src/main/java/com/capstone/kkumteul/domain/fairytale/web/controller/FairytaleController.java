@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/fairytales")
+@RequestMapping("/fairytales")
 public class FairytaleController {
 
     private final FairytaleService fairytaleService;
