@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class FairytaleCompletedMessage {
+    @JsonProperty("fairytale_id")
     private Long fairytaleId;
     @JsonProperty("total_pages")
     private int totalPages;
