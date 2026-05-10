@@ -36,11 +36,11 @@ public class FairytaleController {
             @AuthUser User user,
             @Valid @RequestBody FairytaleGenerateReq request
     ) {
-        eventService.createFairytaleMessageSend(user.getId(), request);
+        Long fairytaleId = eventService.createFairytaleMessageSend(user, request);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(SuccessResponse.empty());
+                .body(SuccessResponse.created(fairytaleId));
     }
   
     @GetMapping("/my")
