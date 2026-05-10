@@ -4,6 +4,7 @@ import com.capstone.kkumteul.domain.fairytale.entity.Fairytale;
 import com.capstone.kkumteul.domain.fairytale.exception.FairytaleNotFoundException;
 import com.capstone.kkumteul.domain.fairytale.repository.FairytaleRepository;
 import com.capstone.kkumteul.domain.fairytale.service.FairytaleCheckService;
+import com.capstone.kkumteul.domain.kafka.dto.VocabExtractedMessage;
 import com.capstone.kkumteul.domain.vocab.entity.WordEntry;
 import com.capstone.kkumteul.domain.vocab.exception.VocabForbiddenException;
 import com.capstone.kkumteul.domain.vocab.repository.WordEntryRepository;
@@ -82,6 +83,51 @@ public class VocabServiceImpl implements VocabService {
             return VocabExtractionResult.saved(saved);
         } catch (DataIntegrityViolationException e) {
             log.info("vocab race condition fairytaleId={}, word={}", fairytaleId, word);
+            return VocabExtractionResult.raceSkipped();
+        }
+    }
+
+    /**
+     * AI Producer가 vocab_extracted 토픽에 발행한 메시지를 처리.
+     *
+     * <p>모든 종착 분기에서 {@link FairytaleCheckService#markVocabDone}을 호출해 SSE hang을 막는다.
+     * RACE_SKIPPED 분기에서도 호출하는 점이 Phase 1 {@link #processSentences}와 의도적으로 다르다.</p>
+     */
+    @Override
+    @Transactional
+    public VocabExtractionResult processExtractedWord(VocabExtractedMessage message) {
+        Long fairytaleId = message.getFairytaleId();
+        int pageNo = message.getPageNo();
+        String word = message.getWord();
+        String meaning = message.getMeaning();
+
+        if (word == null || word.isBlank()) {
+            fairytaleCheckService.markVocabDone(fairytaleId, pageNo);
+            return VocabExtractionResult.noDifficultWord();
+        }
+
+        if (wordEntryRepository.existsByFairytaleIdAndWord(fairytaleId, word)) {
+            fairytaleCheckService.markVocabDone(fairytaleId, pageNo);
+            return VocabExtractionResult.duplicate();
+        }
+
+        Fairytale fairytale = fairytaleRepository.findById(fairytaleId)
+                .orElseThrow(FairytaleNotFoundException::new);
+        WordEntry entry = WordEntry.builder()
+                .fairytale(fairytale)
+                .pageNo(pageNo)
+                .word(word)
+                .meaning(meaning)
+                .build();
+
+        try {
+            WordEntry saved = wordEntryRepository.save(entry);
+            fairytaleCheckService.markVocabDone(fairytaleId, pageNo);
+            return VocabExtractionResult.saved(saved);
+        } catch (DataIntegrityViolationException e) {
+            log.info("vocab race condition (extracted) fairytaleId={}, word={}, messageId={}",
+                    fairytaleId, word, message.getMessageId());
+            fairytaleCheckService.markVocabDone(fairytaleId, pageNo);
             return VocabExtractionResult.raceSkipped();
         }
     }
