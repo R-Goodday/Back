@@ -26,7 +26,7 @@ public class EventService {
         FairytaleGenerateMessage message = FairytaleGenerateMessage.builder()
                 .userId(userId)
                 .background(request.getBackground())
-                .charSpecies(request.getCharSpecie())
+                .charSpecies(request.getCharSpecies())
                 .morality(request.getMorality())
                 .build();
 

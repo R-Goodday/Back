@@ -24,7 +24,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/fairytales")
+@RequestMapping("/fairytales")
 public class FairytaleController {
 
     private final FairytaleService fairytaleService;
