@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -33,17 +32,19 @@ public class FairytaleKafkaConsumer {
         }
     }
 
-    @Transactional
     @KafkaListener(topics = "fairytale_image", groupId = "kkumteul-group")
     public void consumeImage(String message) {
         try {
             ImageMessage img = objectMapper.readValue(message, ImageMessage.class);
+            log.info("[IMAGE RECEIVED] fairytaleId={}, page={}", img.getFairytaleId(), img.getPageNo());
             List<Paragraph> paragraphs = paragraphRepository.findByFairytaleIdAndPage(img.getFairytaleId(), img.getPageNo());
             if (paragraphs.isEmpty()) {
                 log.warn("이미지 저장 실패 - 문단 없음 fairytaleId={}, page={}", img.getFairytaleId(), img.getPageNo());
                 return;
             }
-            paragraphs.getFirst().updateImageUrl(img.getImageurl());
+            Paragraph paragraph = paragraphs.getFirst();
+            paragraph.updateImageUrl(img.getImageurl());
+            paragraphRepository.save(paragraph);
             fairytaleCheckService.markImageDone(img.getFairytaleId(), img.getPageNo());
         } catch (Exception e) {
             log.error("fairytale_image 처리 실패 message={}", message, e);

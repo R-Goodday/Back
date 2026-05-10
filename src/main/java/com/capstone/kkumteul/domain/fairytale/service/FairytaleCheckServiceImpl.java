@@ -39,12 +39,14 @@ public class FairytaleCheckServiceImpl implements FairytaleCheckService {
     @Override
     public void markVocabDone(Long fairytaleId, int page) {
         redisTemplate.opsForValue().set(String.format(VOCAB_KEY, fairytaleId, page), DONE);
+        log.info("[VOCAB DONE] fairytaleId={}, page={}", fairytaleId, page);
         checkAndSend(fairytaleId, page);
     }
 
     @Override
     public void markImageDone(Long fairytaleId, int page) {
         redisTemplate.opsForValue().set(String.format(IMAGE_KEY, fairytaleId, page), DONE);
+        log.info("[IMAGE DONE] fairytaleId={}, page={}", fairytaleId, page);
         forceVocabIfStale(fairytaleId, page);
         checkAndSend(fairytaleId, page);
     }
@@ -78,7 +80,9 @@ public class FairytaleCheckServiceImpl implements FairytaleCheckService {
 
     //sse전송
     private void checkAndSend(Long fairytaleId, int page) {
-        if (!isBothDone(fairytaleId, page)) return;
+        boolean both = isBothDone(fairytaleId, page);
+        log.info("[CHECK] fairytaleId={}, page={}, isBothDone={}", fairytaleId, page, both);
+        if (!both) return;
 
         Optional<WordEntry> wordEntry = wordEntryRepository.findByFairytaleIdAndPageNo(fairytaleId, page);
         List<Paragraph> paragraphs = paragraphRepository.findByFairytaleIdAndPage(fairytaleId, page);
@@ -103,18 +107,21 @@ public class FairytaleCheckServiceImpl implements FairytaleCheckService {
                 paragraph.getImageUrl()
         );
 
+        log.info("[PAGE_CONTENT SEND] fairytaleId={}, page={}", fairytaleId, page);
         sseService.sendToClient(fairytaleId, "page_content", event);
 
         redisTemplate.delete(String.format(VOCAB_KEY, fairytaleId, page));
         redisTemplate.delete(String.format(IMAGE_KEY, fairytaleId, page));
 
         Long sent = redisTemplate.opsForValue().increment(String.format(SENT_KEY, fairytaleId));
+        log.info("[SENT COUNT] fairytaleId={}, sent={}", fairytaleId, sent);
         checkAndSendDone(fairytaleId, sent);
     }
 
     @Override
     public void markTotalPages(Long fairytaleId, int totalPages) {
         redisTemplate.opsForValue().set(String.format(TOTAL_KEY, fairytaleId), String.valueOf(totalPages));
+        log.info("[TOTAL SET] fairytaleId={}, totalPages={}", fairytaleId, totalPages);
         String sentStr = redisTemplate.opsForValue().get(String.format(SENT_KEY, fairytaleId));
         long sent = sentStr == null ? 0L : Long.parseLong(sentStr);
         checkAndSendDone(fairytaleId, sent);

@@ -8,7 +8,6 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
@@ -84,7 +83,7 @@ public class KafkaConsumerConfig {
         config.put(JsonDeserializer.VALUE_DEFAULT_TYPE, VocabExtractedMessage.class.getName());
         config.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
         config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-        config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+        config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         return new DefaultKafkaConsumerFactory<>(config);
     }
 
