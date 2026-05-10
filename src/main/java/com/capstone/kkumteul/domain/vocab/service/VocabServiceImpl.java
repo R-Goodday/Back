@@ -50,6 +50,7 @@ public class VocabServiceImpl implements VocabService {
     @Transactional
     public VocabExtractionResult processSentences(Long fairytaleId, int pageNo, List<String> sentences) {
         Optional<VocabExtractResponse> extracted = vocabExtractClient.extract(sentences);
+        log.info("extracted={}",extracted);
         if (extracted.isEmpty()) {
             fairytaleCheckService.markVocabDone(fairytaleId, pageNo);
             return VocabExtractionResult.extractionFailed();

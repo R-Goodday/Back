@@ -39,7 +39,6 @@ import java.util.Map;
  */
 @EnableKafka
 @Configuration
-@Profile("!dev")
 public class KafkaConsumerConfig {
 
     private final String kafkaUrl;

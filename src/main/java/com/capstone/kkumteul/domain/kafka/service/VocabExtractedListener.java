@@ -5,7 +5,6 @@ import com.capstone.kkumteul.domain.vocab.service.VocabService;
 import com.capstone.kkumteul.domain.vocab.service.dto.VocabExtractionResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-@Profile("!dev")
 @RequiredArgsConstructor
 public class VocabExtractedListener {
 

@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-@Profile("!dev")
 public class KafkaProducerConfig {
 
     private final String KAFKA_URL;
