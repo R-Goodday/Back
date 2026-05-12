@@ -8,9 +8,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum VoiceErrorCode implements BaseResponseCode {
 
-    INVALID_FILE_EXCEPTION("INVALID_FILE_400", 400, "잘못된 파일")
+    INVALID_FILE_EXCEPTION("INVALID_FILE_400", 400, "잘못된 파일");
 
-    private final int code;
+    private final String code;
     private final int httpStatus;
     private final String message;
 }
