@@ -1,6 +1,8 @@
 package com.capstone.kkumteul.domain.fairytale.voice.web.controller;
 
 import com.capstone.kkumteul.domain.fairytale.voice.exception.InvalidFileException;
+import com.capstone.kkumteul.domain.fairytale.voice.service.VoiceService;
+import com.capstone.kkumteul.domain.fairytale.voice.web.dto.TtsModelingRequest;
 import com.capstone.kkumteul.domain.user.entity.User;
 import com.capstone.kkumteul.global.response.SuccessResponse;
 import com.capstone.kkumteul.global.security.AuthUser;
@@ -21,6 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class VoiceController {
 
+    private final VoiceService voiceService;
+
     @PostMapping
     public ResponseEntity<SuccessResponse<?>> sendTtsRequestMessage(
             @AuthUser User user,
@@ -31,8 +35,9 @@ public class VoiceController {
         if(wavFile.isEmpty() || wavFile.getSize() == 0 || wavFile.getName().split("\\.")[1].equals("wav"))
             throw new InvalidFileException();
 
+        TtsModelingRequest result = voiceService.saveMp3(wavFile, user);
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(SuccessResponse.empty());
+                .body(SuccessResponse.created(result.getUserId()));
     }
 }
