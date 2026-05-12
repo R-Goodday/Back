@@ -15,12 +15,12 @@ public class VoiceModel extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
     // extracted tts model name
-    @Column(unique = true)
+    @Column(unique = true, nullable = true)
     private String modelName;
 
     @Column(nullable = false, unique = true)

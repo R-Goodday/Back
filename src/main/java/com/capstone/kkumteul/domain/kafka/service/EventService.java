@@ -66,7 +66,7 @@ public class EventService {
         return saved.getId();
     }
 
-    public Long sendTtsModelingRequest(TtsModelingRequest message) {
+    public void sendTtsModelingRequest(TtsModelingRequest message) {
 
         kafkaTemplate.send(TTS_MODELING, message)
                 .whenComplete((result, e) -> {
@@ -74,7 +74,5 @@ public class EventService {
                         log.error("tts_modeling_request failed. userId={}, message={}", message.getUserId(), message.getUploadedUrl(), e);
                     }
                 });
-
-        return message.getUserId();
     }
 }

@@ -2,7 +2,6 @@ package com.capstone.kkumteul.domain.fairytale.voice.web.controller;
 
 import com.capstone.kkumteul.domain.fairytale.voice.exception.InvalidFileException;
 import com.capstone.kkumteul.domain.fairytale.voice.service.VoiceService;
-import com.capstone.kkumteul.domain.fairytale.voice.web.dto.TtsModelingRequest;
 import com.capstone.kkumteul.domain.user.entity.User;
 import com.capstone.kkumteul.global.response.SuccessResponse;
 import com.capstone.kkumteul.global.security.AuthUser;
@@ -38,9 +37,9 @@ public class VoiceController {
         || !originName.toLowerCase().endsWith(".wav"))
             throw new InvalidFileException();
 
-        voiceService.saveMp3(wavFile, user);
+        voiceService.saveWav(wavFile, user);
 
-        return ResponseEntity.status(HttpStatus.OK)
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .body(SuccessResponse.created(user.getUserId()));
     }
 }

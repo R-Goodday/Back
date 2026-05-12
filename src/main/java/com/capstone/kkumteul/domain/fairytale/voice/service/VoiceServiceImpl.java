@@ -25,7 +25,7 @@ public class VoiceServiceImpl implements VoiceService {
 
     @Override
     @Transactional
-    public Void saveMp3(MultipartFile wavFile, User user) {
+    public Void saveWav(MultipartFile wavFile, User user) {
 
         String uploadedUrl;
 
