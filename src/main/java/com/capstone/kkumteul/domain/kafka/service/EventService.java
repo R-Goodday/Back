@@ -59,7 +59,7 @@ public class EventService {
         kafkaTemplate.send(FAIRYTALE_GENERATION, message)
                 .whenComplete((result, e) -> {
                     if (e != null) {
-                        log.error("fairytale_generate failed. userId={}, message={}", e, user.getId(), message);
+                        log.error("fairytale_generate failed. userId={}, message={}", user.getId(), message, e);
                     }
                 });
 
@@ -71,7 +71,7 @@ public class EventService {
         kafkaTemplate.send(TTS_MODELING, message)
                 .whenComplete((result, e) -> {
                     if(e != null) {
-                        log.error("tts_modeling_request failed. userId={}, message={}", e, message.getUserId(), message.getUploadedUrl());
+                        log.error("tts_modeling_request failed. userId={}, message={}", message.getUserId(), message.getUploadedUrl(), e);
                     }
                 });
 
