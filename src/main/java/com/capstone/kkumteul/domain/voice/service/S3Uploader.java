@@ -1,4 +1,4 @@
-package com.capstone.kkumteul.domain.fairytale.voice.service;
+package com.capstone.kkumteul.domain.voice.service;
 
 import com.capstone.kkumteul.domain.user.entity.User;
 import io.awspring.cloud.s3.ObjectMetadata;

@@ -2,7 +2,7 @@ package com.capstone.kkumteul.domain.kafka.service;
 
 import com.capstone.kkumteul.domain.fairytale.entity.Fairytale;
 import com.capstone.kkumteul.domain.fairytale.repository.FairytaleRepository;
-import com.capstone.kkumteul.domain.fairytale.voice.web.dto.TtsModelingRequest;
+import com.capstone.kkumteul.domain.voice.web.dto.TtsModelingRequest;
 import com.capstone.kkumteul.domain.fairytale.web.dto.FairytaleGenerateReq;
 import com.capstone.kkumteul.domain.kafka.dto.FairytaleGenerateMessage;
 import com.capstone.kkumteul.domain.kafka.dto.MessageInterface;

@@ -1,4 +1,4 @@
-package com.capstone.kkumteul.domain.fairytale.voice.entity;
+package com.capstone.kkumteul.domain.voice.entity;
 
 import com.capstone.kkumteul.domain.user.entity.User;
 import com.capstone.kkumteul.global.entity.BaseEntity;

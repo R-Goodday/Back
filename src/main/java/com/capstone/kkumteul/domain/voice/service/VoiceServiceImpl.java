@@ -1,9 +1,9 @@
-package com.capstone.kkumteul.domain.fairytale.voice.service;
+package com.capstone.kkumteul.domain.voice.service;
 
-import com.capstone.kkumteul.domain.fairytale.voice.entity.VoiceModel;
-import com.capstone.kkumteul.domain.fairytale.voice.exception.FileUploadFailException;
-import com.capstone.kkumteul.domain.fairytale.voice.repository.VoiceModelRepository;
-import com.capstone.kkumteul.domain.fairytale.voice.web.dto.TtsModelingRequest;
+import com.capstone.kkumteul.domain.voice.entity.VoiceModel;
+import com.capstone.kkumteul.domain.voice.exception.FileUploadFailException;
+import com.capstone.kkumteul.domain.voice.repository.VoiceModelRepository;
+import com.capstone.kkumteul.domain.voice.web.dto.TtsModelingRequest;
 import com.capstone.kkumteul.domain.kafka.service.EventService;
 import com.capstone.kkumteul.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;

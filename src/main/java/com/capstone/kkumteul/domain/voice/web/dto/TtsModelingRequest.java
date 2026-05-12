@@ -1,4 +1,4 @@
-package com.capstone.kkumteul.domain.fairytale.voice.web.dto;
+package com.capstone.kkumteul.domain.voice.web.dto;
 
 import com.capstone.kkumteul.domain.kafka.dto.MessageInterface;
 import lombok.AllArgsConstructor;

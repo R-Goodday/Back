@@ -1,4 +1,4 @@
-package com.capstone.kkumteul.domain.fairytale.voice.exception;
+package com.capstone.kkumteul.domain.voice.exception;
 
 import com.capstone.kkumteul.global.exception.BaseException;
 
