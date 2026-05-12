@@ -70,7 +70,7 @@ public class VoiceController {
     ) {
         Boolean response = voiceService.hasTtsHistory(user.getId(), paragraphId);
 
-        return ResponseEntity.status(HttpStatus.OK)
+        return ResponseEntity.status(response ? HttpStatus.OK : HttpStatus.NO_CONTENT)
                 .body(SuccessResponse.ok(response));
     }
 
