@@ -5,5 +5,5 @@ import com.capstone.kkumteul.domain.user.entity.User;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface VoiceService {
-    TtsModelingRequest saveMp3(MultipartFile wavFile, User user);
+    Void saveMp3(MultipartFile wavFile, User user);
 }

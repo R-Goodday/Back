@@ -35,9 +35,9 @@ public class VoiceController {
         if(wavFile.isEmpty() || wavFile.getSize() == 0 || wavFile.getName().split("\\.")[1].equals("wav"))
             throw new InvalidFileException();
 
-        TtsModelingRequest result = voiceService.saveMp3(wavFile, user);
+        voiceService.saveMp3(wavFile, user);
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(SuccessResponse.created(result.getUserId()));
+                .body(SuccessResponse.created(user.getUserId()));
     }
 }

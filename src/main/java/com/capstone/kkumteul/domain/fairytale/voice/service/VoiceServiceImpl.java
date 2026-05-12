@@ -25,7 +25,7 @@ public class VoiceServiceImpl implements VoiceService {
 
     @Override
     @Transactional
-    public TtsModelingRequest saveMp3(MultipartFile wavFile, User user) {
+    public Void saveMp3(MultipartFile wavFile, User user) {
 
         String uploadedUrl;
 
@@ -42,10 +42,9 @@ public class VoiceServiceImpl implements VoiceService {
                 .build();
 
         voiceModelRepository.save(saved);
+        sendKafkaMessage(user.getId(), uploadedUrl);
 
-        TtsModelingRequest result = sendKafkaMessage(user.getId(), uploadedUrl);
-
-        return result;
+        return null;
     }
 
     private TtsModelingRequest sendKafkaMessage(Long userId, String uploadedUrl) {
