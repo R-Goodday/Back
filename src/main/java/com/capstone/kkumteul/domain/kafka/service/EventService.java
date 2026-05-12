@@ -2,6 +2,7 @@ package com.capstone.kkumteul.domain.kafka.service;
 
 import com.capstone.kkumteul.domain.fairytale.entity.Fairytale;
 import com.capstone.kkumteul.domain.fairytale.repository.FairytaleRepository;
+import com.capstone.kkumteul.domain.fairytale.voice.web.dto.TtsModelingRequest;
 import com.capstone.kkumteul.domain.fairytale.web.dto.FairytaleGenerateReq;
 import com.capstone.kkumteul.domain.kafka.dto.FairytaleGenerateMessage;
 import com.capstone.kkumteul.domain.kafka.dto.MessageInterface;
@@ -27,6 +28,9 @@ public class EventService {
 
     @Value("${FAIRYTALE_GENERATION}")
     private String FAIRYTALE_GENERATION;
+
+    @Value(("${TTS_MODELING}"))
+    private String TTS_MODELING;
 
     @Transactional
     public Long createFairytaleMessageSend(User user, FairytaleGenerateReq request) {
@@ -55,10 +59,22 @@ public class EventService {
         kafkaTemplate.send(FAIRYTALE_GENERATION, message)
                 .whenComplete((result, e) -> {
                     if (e != null) {
-                        log.error("fairytale_generate failed", e);
+                        log.error("fairytale_generate failed. userId={}, message={}", e, user.getId(), message);
                     }
                 });
 
         return saved.getId();
+    }
+
+    public Long sendTtsModelingRequest(TtsModelingRequest message) {
+
+        kafkaTemplate.send(TTS_MODELING, message)
+                .whenComplete((result, e) -> {
+                    if(e != null) {
+                        log.error("tts_modeling_request failed. userId={}, message={}", e, message.getUserId(), message.getUploadedUrl());
+                    }
+                });
+
+        return message.getUserId();
     }
 }
