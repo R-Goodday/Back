@@ -32,7 +32,10 @@ public class VoiceController {
     ) {
 
         // File validation
-        if(wavFile.isEmpty() || wavFile.getSize() == 0 || !wavFile.getName().split("\\.")[1].equals("wav"))
+        String originName = wavFile.getOriginalFilename();
+        if(wavFile.isEmpty()
+                || originName.isBlank()
+        || !originName.toLowerCase().endsWith(".wav"))
             throw new InvalidFileException();
 
         voiceService.saveMp3(wavFile, user);
