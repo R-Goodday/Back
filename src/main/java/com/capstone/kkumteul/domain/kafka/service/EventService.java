@@ -2,12 +2,12 @@ package com.capstone.kkumteul.domain.kafka.service;
 
 import com.capstone.kkumteul.domain.fairytale.entity.Fairytale;
 import com.capstone.kkumteul.domain.fairytale.repository.FairytaleRepository;
-import com.capstone.kkumteul.domain.voice.web.dto.TtsFileRequest;
-import com.capstone.kkumteul.domain.voice.web.dto.TtsModelingRequest;
 import com.capstone.kkumteul.domain.fairytale.web.dto.FairytaleGenerateReq;
 import com.capstone.kkumteul.domain.kafka.dto.FairytaleGenerateMessage;
 import com.capstone.kkumteul.domain.kafka.dto.MessageInterface;
 import com.capstone.kkumteul.domain.user.entity.User;
+import com.capstone.kkumteul.domain.voice.web.dto.TtsFileRequest;
+import com.capstone.kkumteul.domain.voice.web.dto.TtsModelingRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

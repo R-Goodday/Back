@@ -1,8 +1,8 @@
 package com.capstone.kkumteul.domain.voice.web.controller;
 
+import com.capstone.kkumteul.domain.user.entity.User;
 import com.capstone.kkumteul.domain.voice.exception.InvalidFileException;
 import com.capstone.kkumteul.domain.voice.service.VoiceService;
-import com.capstone.kkumteul.domain.user.entity.User;
 import com.capstone.kkumteul.domain.voice.web.dto.TtsFileResponse;
 import com.capstone.kkumteul.global.response.SuccessResponse;
 import com.capstone.kkumteul.global.security.AuthUser;

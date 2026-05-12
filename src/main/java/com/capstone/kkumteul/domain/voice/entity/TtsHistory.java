@@ -2,7 +2,6 @@ package com.capstone.kkumteul.domain.voice.entity;
 
 import com.capstone.kkumteul.domain.fairytale.entity.Paragraph;
 import com.capstone.kkumteul.domain.user.entity.User;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
