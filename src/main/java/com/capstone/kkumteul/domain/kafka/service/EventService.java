@@ -2,6 +2,8 @@ package com.capstone.kkumteul.domain.kafka.service;
 
 import com.capstone.kkumteul.domain.fairytale.entity.Fairytale;
 import com.capstone.kkumteul.domain.fairytale.repository.FairytaleRepository;
+import com.capstone.kkumteul.domain.voice.web.dto.TtsFileRequest;
+import com.capstone.kkumteul.domain.voice.web.dto.TtsFileResponse;
 import com.capstone.kkumteul.domain.voice.web.dto.TtsModelingRequest;
 import com.capstone.kkumteul.domain.fairytale.web.dto.FairytaleGenerateReq;
 import com.capstone.kkumteul.domain.kafka.dto.FairytaleGenerateMessage;
@@ -14,6 +16,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.concurrent.ExecutionException;
 
 /* 동화 생성 이벤트 전파 */
 
@@ -72,6 +76,16 @@ public class EventService {
                 .whenComplete((result, e) -> {
                     if(e != null) {
                         log.error("tts_modeling_request failed. userId={}, message={}", message.getUserId(), message.getUploadedUrl(), e);
+                    }
+                });
+    }
+
+    public void sendTtsFileRequest(TtsFileRequest message) {
+
+        kafkaTemplate.send(TTS_MODELING, message)
+                .whenComplete((result, e) -> {
+                    if( e != null) {
+                        log.error("tts_file_request occurred error. userId={}, paragraphId={}", message.getUserId(), message.getParagraphId(), e);
                     }
                 });
     }
