@@ -9,5 +9,5 @@ import lombok.Getter;
 public class TtsFileRequest implements MessageInterface {
 
     private Long userId;
-    private Long paragraphId;
+    private Long fairytaleId;
 }
