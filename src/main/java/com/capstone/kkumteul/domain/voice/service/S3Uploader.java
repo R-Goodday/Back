@@ -35,7 +35,7 @@ public class S3Uploader {
                 convert(wavFile),
                 createFilename(
                         wavFile.getOriginalFilename(),
-                        user.getUsername()
+                        user.getId()
                 ),
                 wavFile.getContentType()
         );
@@ -46,10 +46,10 @@ public class S3Uploader {
     }
 
     // with UUID
-    private String createFilename(String originalFilename, String username) {
+    private String createFilename(String originalFilename, Long userId) {
         String uuid = UUID.randomUUID().toString();
         String uniqueFilename = uuid + "-" + originalFilename.replaceAll("\\s", "-");
-        return username + "/" + uniqueFilename;
+        return "tts/" + userId.toString() + "/train/" + uniqueFilename;
     }
 
     private String putS3(InputStream inputStream,String filename, String contentType) throws IOException {
