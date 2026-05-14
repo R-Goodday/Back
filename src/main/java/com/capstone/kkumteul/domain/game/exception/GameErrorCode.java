@@ -18,7 +18,8 @@ public enum GameErrorCode implements BaseResponseCode {
     ALREADY_ANSWERED("GAME_409_2", CONFLICT, "이미 완료한 엣지입니다."),
     QUIZ_NOT_FOUND("GAME_404_4", NOT_FOUND, "퀴즈를 찾을 수 없습니다."),
     EDGE_NOT_FOUND("GAME_404_5", NOT_FOUND, "해당 관계를 찾을 수 없습니다."),
-    GAME_NOT_COMPLETED("GAME_404_6", NOT_FOUND, "완료된 게임이 없습니다.");
+    GAME_NOT_COMPLETED("GAME_404_6", NOT_FOUND, "완료된 게임이 없습니다."),
+    GAME_FORBIDDEN("GAME_403_1", FORBIDDEN, "본인 동화가 아닙니다.");
 
     private final String code;
     private final int httpStatus;
