@@ -213,7 +213,7 @@ public class GameServiceImpl implements GameService {
      * <p>관계도 화면에서 선 클릭 시 호출. edge_id로 단건 조회 후 description 반환.</p>
      * <ul>
      *   <li>edge_id → graph_edges 조회 (없으면 404)</li>
-     *   <li>fromNode의 fairytale_id로 game_results 검증 → 본인 완료 데이터가 아니면 403</li>
+     *   <li>본인 동화가 아니면 403, 본인 동화이지만 미완료면 404</li>
      * </ul>
      */
     @Override
@@ -221,9 +221,8 @@ public class GameServiceImpl implements GameService {
         GraphEdge edge = graphEdgeRepository.findById(edgeId)
                 .orElseThrow(EdgeNotFoundException::new);
 
-        // fromNode → fairytale → game_results에서 해당 유저의 완료 여부 검증
-        Long fairytaleId = edge.getFromNode().getFairytale().getId();
-        validateGameCompleted(userId, fairytaleId);
+        Fairytale fairytale = edge.getFromNode().getFairytale();
+        validateOwnedAndCompleted(userId, fairytale);
 
         return EdgeDetailRes.from(edge);
     }
@@ -239,7 +238,7 @@ public class GameServiceImpl implements GameService {
      */
     @Override
     public GraphDetailRes getGraph(Long userId, Long fairytaleId) {
-        validateGameCompleted(userId, fairytaleId);
+        validateGraphCompleted(userId, fairytaleId);
 
         List<GraphNode> nodes = graphNodeRepository.findByFairytaleId(fairytaleId);
         List<GraphEdge> edges = graphEdgeRepository.findByFairytaleId(fairytaleId);
@@ -267,15 +266,31 @@ public class GameServiceImpl implements GameService {
     }
 
     /**
-     * 게임 완료 여부 검증 — 3단계 조회 API 공통.
-     * game_results에서 (userId, fairytaleId) 조합으로 completed=true인지 확인.
-     * 결과가 없거나 미완료면 GameNotCompletedException.
+     * 본인 동화 + 게임 완료 여부 검증 — GET /game/edge 전용.
+     * <p>① 동화 소유권: fairytale.user.id != userId 면 {@link GameForbiddenException} (403).
+     * ② 완료 여부: game_results.completed != true 면 {@link GameNotCompletedException} (404).</p>
      */
-    private void validateGameCompleted(Long userId, Long fairytaleId) {
-        GameResult result = gameResultRepository.findByUserIdAndFairytaleId(userId, fairytaleId)
+    private void validateOwnedAndCompleted(Long userId, Fairytale fairytale) {
+        if (!fairytale.getUser().getId().equals(userId)) {
+            throw new GameForbiddenException();
+        }
+        GameResult result = gameResultRepository.findByUserIdAndFairytaleId(userId, fairytale.getId())
                 .orElseThrow(GameNotCompletedException::new);
         if (!result.isCompleted()) {
             throw new GameNotCompletedException();
+        }
+    }
+
+    /**
+     * 완성된 그래프 조회 자격 검증 — GET /game/graph 전용.
+     * <p>game_results.completed != true (또는 row 없음) 인 경우를 모두 {@link GraphNotFoundException} (404 GRAPH_NOT_FOUND) 로 통일.</p>
+     */
+    private void validateGraphCompleted(Long userId, Long fairytaleId) {
+        boolean completed = gameResultRepository.findByUserIdAndFairytaleId(userId, fairytaleId)
+                .map(GameResult::isCompleted)
+                .orElse(false);
+        if (!completed) {
+            throw new GraphNotFoundException();
         }
     }
 
