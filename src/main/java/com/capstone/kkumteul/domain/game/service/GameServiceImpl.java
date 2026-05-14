@@ -1,8 +1,6 @@
 package com.capstone.kkumteul.domain.game.service;
 
 import com.capstone.kkumteul.domain.fairytale.entity.Fairytale;
-import com.capstone.kkumteul.domain.fairytale.entity.Paragraph;
-import com.capstone.kkumteul.domain.fairytale.repository.ParagraphRepository;
 import com.capstone.kkumteul.domain.game.entity.GraphEdge;
 import com.capstone.kkumteul.domain.game.entity.GraphNode;
 import com.capstone.kkumteul.domain.game.entity.NodeCategory;
@@ -17,7 +15,6 @@ import com.capstone.kkumteul.domain.game.repository.GraphEdgeRepository;
 import com.capstone.kkumteul.domain.game.repository.GraphNodeRepository;
 import com.capstone.kkumteul.domain.game.web.dto.*;
 import com.capstone.kkumteul.domain.user.entity.User;
-import com.capstone.kkumteul.global.client.GraphService;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,8 +35,6 @@ public class GameServiceImpl implements GameService {
     private final GameResultRepository gameResultRepository;
     private final GameSessionManager sessionManager;
     private final EntityManager entityManager;
-    private final GraphService graphService;
-    private final ParagraphRepository paragraphRepository;
 
     /**
      * 게임 시작 — POST /game/start
@@ -48,10 +43,13 @@ public class GameServiceImpl implements GameService {
      * <ol>
      *   <li>동화 존재 확인 (EntityManager.find → 없으면 404)</li>
      *   <li>game_results에서 (userId, fairytaleId) 조회 → completed=true면 409</li>
-     *   <li>graph_nodes에서 fairytaleId로 그래프 존재 확인 → 없으면 404</li>
+     *   <li>graph_nodes에서 fairytaleId로 그래프 존재 확인 → 없으면 404 GRAPH_NOT_FOUND</li>
      *   <li>기존 세션 제거 (뒤로 가기 후 재진입 시 처음부터 재시작)</li>
      *   <li>노드/엣지 DB 조회 → 인메모리 세션에 캐싱</li>
      * </ol>
+     *
+     * <p>그래프는 동화 생성 시점에 Kafka consumer 가 비동기로 추출하므로,
+     * 본 메서드에서 동기 폴백 호출은 하지 않는다.</p>
      */
     @Override
     @Transactional
@@ -70,14 +68,10 @@ public class GameServiceImpl implements GameService {
                     }
                 });
 
-        // graph_nodes 테이블에서 fairytaleId로 그래프 존재 확인 → 없으면 FastAPI 호출
+        // graph_nodes 테이블에서 fairytaleId 로 그래프 존재 확인 → 없으면 즉시 404
         if (!graphNodeRepository.existsByFairytaleId(fairytaleId)) {
-            log.info("그래프 미존재 — FastAPI 추출 호출: fairytaleId={}", fairytaleId);
-            List<Paragraph> paragraphs = paragraphRepository.findByFairytaleIdOrderByPageAsc(fairytaleId);
-            String content = paragraphs.stream()
-                    .map(Paragraph::getText)
-                    .collect(java.util.stream.Collectors.joining(" "));
-            graphService.extractAndSave(fairytale, content);
+            log.warn("그래프 미존재 — fairytaleId={}", fairytaleId);
+            throw new GraphNotFoundException();
         }
 
         // 기존 세션 제거 — 뒤로 가기 후 재진입 시 새 세션으로 처음부터
