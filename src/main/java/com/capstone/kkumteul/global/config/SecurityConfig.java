@@ -71,7 +71,7 @@ public class SecurityConfig {
                 // API path 마다 역할 기반 인가 정책 설정
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated()   // 필터링되지 않은 모든 URL에 대해서 인증 강제
                 )
 
