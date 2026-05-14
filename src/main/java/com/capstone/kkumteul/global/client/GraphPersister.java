@@ -5,6 +5,7 @@ import com.capstone.kkumteul.domain.game.entity.EdgeChoice;
 import com.capstone.kkumteul.domain.game.entity.GraphEdge;
 import com.capstone.kkumteul.domain.game.entity.GraphNode;
 import com.capstone.kkumteul.domain.game.entity.NodeCategory;
+import com.capstone.kkumteul.domain.game.exception.InvalidGraphPayloadException;
 import com.capstone.kkumteul.domain.game.repository.EdgeChoiceRepository;
 import com.capstone.kkumteul.domain.game.repository.GraphEdgeRepository;
 import com.capstone.kkumteul.domain.game.repository.GraphNodeRepository;
@@ -52,6 +53,9 @@ public class GraphPersister {
         for (GraphExtractResponse.EdgeDto edgeDto : response.getEdges()) {
             GraphNode fromNode = tempIdToNode.get(edgeDto.getFromTempId());
             GraphNode toNode = tempIdToNode.get(edgeDto.getToTempId());
+            if (fromNode == null || toNode == null) {
+                throw new InvalidGraphPayloadException();
+            }
 
             GraphEdge edge = GraphEdge.builder()
                     .fromNode(fromNode)

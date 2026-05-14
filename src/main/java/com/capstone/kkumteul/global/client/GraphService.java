@@ -1,6 +1,7 @@
 package com.capstone.kkumteul.global.client;
 
 import com.capstone.kkumteul.domain.fairytale.entity.Fairytale;
+import com.capstone.kkumteul.domain.game.exception.GraphExtractFailedException;
 import com.capstone.kkumteul.global.client.dto.GraphExtractRequest;
 import com.capstone.kkumteul.global.client.dto.GraphExtractResponse;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,7 @@ public class GraphService {
         );
 
         if (response == null || response.getNodes() == null) {
-            throw new RuntimeException("FastAPI 그래프 추출 응답이 비어있습니다.");
+            throw new GraphExtractFailedException();
         }
 
         graphPersister.persist(fairytale, response);
