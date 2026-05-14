@@ -7,10 +7,16 @@ import com.capstone.kkumteul.domain.game.exception.GraphNotFoundException;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Getter
 public class GameSession {
 
     private final String sessionId;
@@ -18,6 +24,7 @@ public class GameSession {
     private final Long fairytaleId;
     private final Map<Long, SessionNode> nodeMap;
     private final List<SessionEdge> edges;
+    private final Map<Long, SessionEdge> edgeMap;
     private final Set<Long> classifiedNodeIds;
     private final Set<Long> completedEdgeIds;
     private final Map<String, Long> quizEdgeMap;
@@ -35,10 +42,42 @@ public class GameSession {
             this.nodeMap.put(node.getId(), SessionNode.from(node));
         }
         this.edges = edges.stream().map(SessionEdge::from).toList();
+        this.edgeMap = new HashMap<>();
+        for (SessionEdge edge : this.edges) {
+            this.edgeMap.put(edge.getId(), edge);
+        }
         this.classifiedNodeIds = ConcurrentHashMap.newKeySet();
         this.completedEdgeIds = ConcurrentHashMap.newKeySet();
         this.quizEdgeMap = new ConcurrentHashMap<>();
         this.lastActivity = LocalDateTime.now();
+    }
+
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public Long getFairytaleId() {
+        return fairytaleId;
+    }
+
+    public Collection<SessionNode> getNodes() {
+        return Collections.unmodifiableCollection(nodeMap.values());
+    }
+
+    public List<SessionEdge> getEdges() {
+        return edges;
+    }
+
+    public int getTotalEdges() {
+        return edges.size();
+    }
+
+    public SessionEdge findEdge(Long edgeId) {
+        return edgeMap.get(edgeId);
     }
 
     public void touch() {
@@ -91,14 +130,6 @@ public class GameSession {
         return quizEdgeMap.get(quizId);
     }
 
-    public int getTotalEdges() {
-        return edges.size();
-    }
-
-    public Collection<SessionNode> getNodes() {
-        return nodeMap.values();
-    }
-
     @Getter
     public static class SessionNode {
         private final Long id;
@@ -121,15 +152,22 @@ public class GameSession {
         private final Long id;
         private final Long fromNodeId;
         private final Long toNodeId;
+        private final String description;
 
-        private SessionEdge(Long id, Long fromNodeId, Long toNodeId) {
+        private SessionEdge(Long id, Long fromNodeId, Long toNodeId, String description) {
             this.id = id;
             this.fromNodeId = fromNodeId;
             this.toNodeId = toNodeId;
+            this.description = description;
         }
 
         public static SessionEdge from(GraphEdge edge) {
-            return new SessionEdge(edge.getId(), edge.getFromNode().getId(), edge.getToNode().getId());
+            return new SessionEdge(
+                    edge.getId(),
+                    edge.getFromNode().getId(),
+                    edge.getToNode().getId(),
+                    edge.getDescription()
+            );
         }
     }
 }

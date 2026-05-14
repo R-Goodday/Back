@@ -5,6 +5,7 @@ import com.capstone.kkumteul.domain.fairytale.repository.ParagraphRepository;
 import com.capstone.kkumteul.domain.fairytale.service.FairytaleCheckService;
 import com.capstone.kkumteul.domain.kafka.dto.FairytaleCompletedMessage;
 import com.capstone.kkumteul.domain.kafka.dto.ImageMessage;
+import com.capstone.kkumteul.global.client.GraphExtractTrigger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ public class FairytaleKafkaConsumer {
 
     private final ParagraphRepository paragraphRepository;
     private final FairytaleCheckService fairytaleCheckService;
+    private final GraphExtractTrigger graphExtractTrigger;
     private final ObjectMapper objectMapper;
 
     @KafkaListener(topics = "fairytale_done", groupId = "kkumteul-group")
@@ -27,6 +29,7 @@ public class FairytaleKafkaConsumer {
         try {
             FairytaleCompletedMessage msg = objectMapper.readValue(message, FairytaleCompletedMessage.class);
             fairytaleCheckService.markTotalPages(msg.getFairytaleId(), msg.getTotalPages());
+            graphExtractTrigger.triggerAsync(msg.getFairytaleId());
         } catch (Exception e) {
             log.error("fairytale_done 처리 실패 message={}", message, e);
         }
