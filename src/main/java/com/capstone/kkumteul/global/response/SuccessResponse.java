@@ -40,6 +40,10 @@ public class SuccessResponse<T> extends BaseResponse {
         return new SuccessResponse<>(null, SuccessResponseCode.SUCCESS_OK);
     }
 
+    public static SuccessResponse<?> accepted() {
+        return new SuccessResponse<>(null, SuccessResponseCode.SUCCESS_ACCEPTED);
+    }
+
     public static <T> SuccessResponse<T> of(T data, BaseResponseCode baseResponseCode) {
         return new SuccessResponse<>(data, baseResponseCode);
     }
