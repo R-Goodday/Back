@@ -15,4 +15,6 @@ public interface GameService {
     EdgeDetailRes getEdgeDetail(Long userId, Long edgeId);
 
     GraphDetailRes getGraph(Long userId, Long fairytaleId);
+
+    GameStatusRes getStatus(Long userId, Long fairytaleId);
 }

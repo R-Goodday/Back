@@ -72,4 +72,14 @@ public class GameController {
         GraphDetailRes res = gameService.getGraph(user.getId(), fairytaleId);
         return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.ok(res));
     }
+
+    /** 동화 해설 진입 분기용 — 게임 완료 여부 조회 */
+    @GetMapping("/status")
+    public ResponseEntity<SuccessResponse<GameStatusRes>> getStatus(
+            @AuthUser User user,
+            @RequestParam("fairytale_id") Long fairytaleId
+    ) {
+        GameStatusRes res = gameService.getStatus(user.getId(), fairytaleId);
+        return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.ok(res));
+    }
 }

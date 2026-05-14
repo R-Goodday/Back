@@ -248,6 +248,25 @@ public class GameServiceImpl implements GameService {
     }
 
     /**
+     * 게임 완료 여부 조회 — GET /api/game/status
+     *
+     * <p>앱 진입 시 "동화 해설" 버튼 분기에 사용. fairytale 미존재만 404, 그 외에는 completed boolean 으로 반환한다.</p>
+     */
+    @Override
+    public GameStatusRes getStatus(Long userId, Long fairytaleId) {
+        Fairytale fairytale = entityManager.find(Fairytale.class, fairytaleId);
+        if (fairytale == null) {
+            throw new FairytaleNotFoundException();
+        }
+
+        boolean completed = gameResultRepository.findByUserIdAndFairytaleId(userId, fairytaleId)
+                .map(GameResult::isCompleted)
+                .orElse(false);
+
+        return GameStatusRes.of(fairytaleId, completed);
+    }
+
+    /**
      * 게임 완료 여부 검증 — 3단계 조회 API 공통.
      * game_results에서 (userId, fairytaleId) 조합으로 completed=true인지 확인.
      * 결과가 없거나 미완료면 GameNotCompletedException.
