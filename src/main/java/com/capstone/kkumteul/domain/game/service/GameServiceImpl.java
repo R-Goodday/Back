@@ -16,6 +16,7 @@ import com.capstone.kkumteul.domain.game.repository.GraphNodeRepository;
 import com.capstone.kkumteul.domain.game.web.dto.*;
 import com.capstone.kkumteul.domain.user.entity.User;
 import jakarta.persistence.EntityManager;
+import org.springframework.dao.DataIntegrityViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -294,7 +295,12 @@ public class GameServiceImpl implements GameService {
         }
     }
 
-    /** game_results INSERT — 2단계 완료 시 서버가 자동 저장 (앱 크래시 대비) */
+    /**
+     * game_results INSERT — 2단계 완료 시 서버가 자동 저장 (앱 크래시 대비).
+     *
+     * <p>(userId, fairytaleId) UNIQUE 제약이 걸려 있어 동시 INSERT 시 한쪽은 {@link DataIntegrityViolationException} 을 던진다.
+     * race 패자는 INFO 로 흡수하고 정상 흐름으로 반환한다.</p>
+     */
     private void saveGameResult(GameSession session) {
         if (gameResultRepository.existsByUserIdAndFairytaleId(session.getUserId(), session.getFairytaleId())) {
             return;
@@ -306,6 +312,11 @@ public class GameServiceImpl implements GameService {
                 .fairytale(fairytale)
                 .completed(true)
                 .build();
-        gameResultRepository.save(result);
+        try {
+            gameResultRepository.save(result);
+        } catch (DataIntegrityViolationException e) {
+            log.info("game result race 흡수 userId={}, fairytaleId={}",
+                    session.getUserId(), session.getFairytaleId());
+        }
     }
 }
