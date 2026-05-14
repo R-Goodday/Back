@@ -54,6 +54,9 @@ dependencies {
 
 	// .env 파일 로딩
 	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+
+	// S3 (latest dependency)
+	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.4.2'
 }
 
 tasks.named('test') {

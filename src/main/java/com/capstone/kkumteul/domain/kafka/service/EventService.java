@@ -6,6 +6,8 @@ import com.capstone.kkumteul.domain.fairytale.web.dto.FairytaleGenerateReq;
 import com.capstone.kkumteul.domain.kafka.dto.FairytaleGenerateMessage;
 import com.capstone.kkumteul.domain.kafka.dto.MessageInterface;
 import com.capstone.kkumteul.domain.user.entity.User;
+import com.capstone.kkumteul.domain.voice.web.dto.TtsFileRequest;
+import com.capstone.kkumteul.domain.voice.web.dto.TtsModelingRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +29,9 @@ public class EventService {
 
     @Value("${FAIRYTALE_GENERATION}")
     private String FAIRYTALE_GENERATION;
+
+    @Value(("${TTS_MODELING}"))
+    private String TTS_MODELING;
 
     @Transactional
     public Long createFairytaleMessageSend(User user, FairytaleGenerateReq request) {
@@ -55,10 +60,30 @@ public class EventService {
         kafkaTemplate.send(FAIRYTALE_GENERATION, message)
                 .whenComplete((result, e) -> {
                     if (e != null) {
-                        log.error("fairytale_generate failed", e);
+                        log.error("fairytale_generate failed. userId={}, message={}", user.getId(), message, e);
                     }
                 });
 
         return saved.getId();
+    }
+
+    public void sendTtsModelingRequest(TtsModelingRequest message) {
+
+        kafkaTemplate.send(TTS_MODELING, message)
+                .whenComplete((result, e) -> {
+                    if(e != null) {
+                        log.error("tts_modeling_request failed. userId={}, message={}", message.getUserId(), message.getUploadedUrl(), e);
+                    }
+                });
+    }
+
+    public void sendTtsFileRequest(TtsFileRequest message) {
+
+        kafkaTemplate.send(TTS_MODELING, message)
+                .whenComplete((result, e) -> {
+                    if( e != null) {
+                        log.error("tts_file_request occurred error. userId={}, paragraphId={}", message.getUserId(), message.getFairytaleId(), e);
+                    }
+                });
     }
 }
