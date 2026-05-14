@@ -1,24 +1,36 @@
 package com.capstone.kkumteul.domain.game.service;
 
 import com.capstone.kkumteul.domain.fairytale.entity.Fairytale;
+import com.capstone.kkumteul.domain.fairytale.exception.FairytaleNotFoundException;
+import com.capstone.kkumteul.domain.game.entity.EdgeChoice;
+import com.capstone.kkumteul.domain.game.entity.GameResult;
 import com.capstone.kkumteul.domain.game.entity.GraphEdge;
 import com.capstone.kkumteul.domain.game.entity.GraphNode;
 import com.capstone.kkumteul.domain.game.entity.NodeCategory;
-import com.capstone.kkumteul.domain.game.entity.EdgeChoice;
-import com.capstone.kkumteul.domain.game.entity.GameResult;
-import com.capstone.kkumteul.domain.fairytale.exception.FairytaleNotFoundException;
-import com.capstone.kkumteul.domain.game.entity.*;
-import com.capstone.kkumteul.domain.game.exception.*;
+import com.capstone.kkumteul.domain.game.exception.AlreadyAnsweredException;
+import com.capstone.kkumteul.domain.game.exception.EdgeNotFoundException;
+import com.capstone.kkumteul.domain.game.exception.GameAlreadyCompletedException;
+import com.capstone.kkumteul.domain.game.exception.GameForbiddenException;
+import com.capstone.kkumteul.domain.game.exception.GameNotCompletedException;
+import com.capstone.kkumteul.domain.game.exception.GraphNotFoundException;
+import com.capstone.kkumteul.domain.game.exception.InvalidEdgeException;
+import com.capstone.kkumteul.domain.game.exception.QuizNotFoundException;
 import com.capstone.kkumteul.domain.game.repository.EdgeChoiceRepository;
 import com.capstone.kkumteul.domain.game.repository.GameResultRepository;
 import com.capstone.kkumteul.domain.game.repository.GraphEdgeRepository;
 import com.capstone.kkumteul.domain.game.repository.GraphNodeRepository;
-import com.capstone.kkumteul.domain.game.web.dto.*;
+import com.capstone.kkumteul.domain.game.web.dto.ClassifyRes;
+import com.capstone.kkumteul.domain.game.web.dto.EdgeDetailRes;
+import com.capstone.kkumteul.domain.game.web.dto.GameStartRes;
+import com.capstone.kkumteul.domain.game.web.dto.GameStatusRes;
+import com.capstone.kkumteul.domain.game.web.dto.GraphDetailRes;
+import com.capstone.kkumteul.domain.game.web.dto.QuizAnswerRes;
+import com.capstone.kkumteul.domain.game.web.dto.QuizRes;
 import com.capstone.kkumteul.domain.user.entity.User;
 import jakarta.persistence.EntityManager;
-import org.springframework.dao.DataIntegrityViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -191,9 +203,11 @@ public class GameServiceImpl implements GameService {
             return QuizAnswerRes.incorrect();
         }
 
-        // 정답 처리 — 엣지 완료 표시
-        GraphEdge edge = graphEdgeRepository.findById(edgeId)
-                .orElseThrow(InvalidEdgeException::new);
+        // 정답 처리 — 엣지 완료 표시 (description 은 세션 캐시에서 읽음)
+        GameSession.SessionEdge edge = session.findEdge(edgeId);
+        if (edge == null) {
+            throw new InvalidEdgeException();
+        }
         session.markEdgeCompleted(edgeId);
 
         // 모든 엣지 완료 → 2단계 종료
