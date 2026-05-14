@@ -13,4 +13,8 @@ public class ParagraphValidator {
     public boolean paragraphIdIsValid(Long paragraphId) {
         return paragraphRepository.existsById(paragraphId);
     }
+
+    public boolean fairytaleIdIsValid(Long fairytaleId) {
+        return paragraphRepository.existsByFairytaleId(fairytaleId);
+    }
 }

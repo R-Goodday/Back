@@ -30,6 +30,10 @@ public class VoiceController {
 
         // File validation
         String originName = wavFile.getOriginalFilename();
+        if(originName == null) {
+            throw new InvalidFileException();
+        }
+
         if(wavFile.isEmpty()
                 || originName.isBlank()
         || !originName.toLowerCase().endsWith(".wav"))
@@ -38,7 +42,7 @@ public class VoiceController {
         voiceService.saveWav(wavFile, user);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(SuccessResponse.created(user.getUserId()));
+                .body(SuccessResponse.created(user.getId()));
     }
 
     @GetMapping("/{paragraphId}")
@@ -52,12 +56,12 @@ public class VoiceController {
                 .body(SuccessResponse.ok(response));
     }
 
-    @PostMapping("/{paragraphId}")
+    @PostMapping("/{fairytaleId}")
     public ResponseEntity<SuccessResponse<?>> postTtsFile(
             @AuthUser User user,
-            @PathVariable Long paragraphId
+            @PathVariable Long fairytaleId
     ) {
-        voiceService.createTtsFile(user.getId(), paragraphId);
+        voiceService.createTtsFile(user.getId(), fairytaleId);
 
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(SuccessResponse.accepted());

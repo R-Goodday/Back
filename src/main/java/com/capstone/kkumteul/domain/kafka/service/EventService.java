@@ -82,7 +82,7 @@ public class EventService {
         kafkaTemplate.send(TTS_MODELING, message)
                 .whenComplete((result, e) -> {
                     if( e != null) {
-                        log.error("tts_file_request occurred error. userId={}, paragraphId={}", message.getUserId(), message.getParagraphId(), e);
+                        log.error("tts_file_request occurred error. userId={}, paragraphId={}", message.getUserId(), message.getFairytaleId(), e);
                     }
                 });
     }

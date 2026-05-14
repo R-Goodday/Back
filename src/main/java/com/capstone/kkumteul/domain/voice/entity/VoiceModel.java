@@ -24,5 +24,5 @@ public class VoiceModel extends BaseEntity {
     private String modelName;
 
     @Column(nullable = false, unique = true)
-    private String originFilename;
+    private String wavFileUrl;
 }

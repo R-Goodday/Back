@@ -48,7 +48,7 @@ public class VoiceServiceImpl implements VoiceService {
 
         VoiceModel saved = VoiceModel.builder()
                 .user(user)
-                .originFilename(wavFile.getOriginalFilename())
+                .wavFileUrl(uploadedUrl)
                 .build();
 
         voiceModelRepository.save(saved);
@@ -63,13 +63,13 @@ public class VoiceServiceImpl implements VoiceService {
     }
 
     @Override
-    public Void createTtsFile(Long userId, Long paragraphId) {
+    public Void createTtsFile(Long userId, Long fairytaleId) {
 
-        if(!paragraphValidator.paragraphIdIsValid(paragraphId)) {
+        if(!paragraphValidator.fairytaleIdIsValid(fairytaleId)) {
             throw new ParagraphNotFoundException();
         }
 
-        sendTtsFileRequest(userId, paragraphId);
+        sendTtsFileRequest(userId, fairytaleId);
         return null;
     }
 
