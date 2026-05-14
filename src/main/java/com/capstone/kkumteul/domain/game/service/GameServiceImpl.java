@@ -50,19 +50,7 @@ public class GameServiceImpl implements GameService {
     private final EntityManager entityManager;
 
     /**
-     * 게임 시작 — POST /game/start
-     *
-     * <p>처리 흐름:</p>
-     * <ol>
-     *   <li>동화 존재 확인 (EntityManager.find → 없으면 404)</li>
-     *   <li>game_results에서 (userId, fairytaleId) 조회 → completed=true면 409</li>
-     *   <li>graph_nodes에서 fairytaleId로 그래프 존재 확인 → 없으면 404 GRAPH_NOT_FOUND</li>
-     *   <li>기존 세션 제거 (뒤로 가기 후 재진입 시 처음부터 재시작)</li>
-     *   <li>노드/엣지 DB 조회 → 인메모리 세션에 캐싱</li>
-     * </ol>
-     *
-     * <p>그래프는 동화 생성 시점에 Kafka consumer 가 비동기로 추출하므로,
-     * 본 메서드에서 동기 폴백 호출은 하지 않는다.</p>
+     * 그래프는 Kafka consumer 가 비동기로 추출하므로, 본 메서드에서 동기 폴백 호출은 하지 않는다.
      */
     @Override
     @Transactional
@@ -100,16 +88,6 @@ public class GameServiceImpl implements GameService {
         return GameStartRes.of(session.getSessionId(), session.getNodes());
     }
 
-    /**
-     * 1단계 바구니 분류 — POST /game/classify
-     *
-     * <p>드래그할 때마다 즉시 호출. 세션 캐싱 데이터로 채점하므로 DB 조회 없음.</p>
-     * <ul>
-     *   <li>이미 정답 처리된 노드 재제출 → correct: true (멱등성 보장)</li>
-     *   <li>카테고리 한글 라벨("등장인물") → NodeCategory.fromLabel()로 변환 후 비교</li>
-     *   <li>전체 노드 분류 완료 시 stage_complete=true + 2단계 데이터(노드+카테고리+총 엣지 수) 반환</li>
-     * </ul>
-     */
     @Override
     public ClassifyRes classify(String sessionId, Long nodeId, String category) {
         // 세션 조회 + TTL 갱신 (없으면 404)
@@ -136,17 +114,6 @@ public class GameServiceImpl implements GameService {
         return ClassifyRes.correct(false);
     }
 
-    /**
-     * 2단계 퀴즈 요청 — POST /game/quiz
-     *
-     * <p>두 노드 사이에 선을 그을 때 호출.</p>
-     * <ul>
-     *   <li>양방향 매칭으로 엣지 조회 (A→B든 B→A든 동일 엣지)</li>
-     *   <li>이미 정답 처리된 엣지면 409 (ALREADY_ANSWERED)</li>
-     *   <li>유효하지 않은 조합이면 400 (INVALID_EDGE)</li>
-     *   <li>보기 3개는 랜덤 셔플하여 반환</li>
-     * </ul>
-     */
     @Override
     public QuizRes requestQuiz(String sessionId, Long fromNodeId, Long toNodeId) {
         GameSession session = sessionManager.get(sessionId);
@@ -170,14 +137,7 @@ public class GameServiceImpl implements GameService {
     }
 
     /**
-     * 2단계 퀴즈 정답 제출 — POST /game/quiz/answer
-     *
-     * <p>choice_id(PK)로 정답 제출. 텍스트 매칭 대신 PK 비교로 안전 채점.</p>
-     * <ul>
-     *   <li>정답 시 description 반환 → 앱에서 관계 설명 모달 표시</li>
-     *   <li>오답 시 힌트 반환 (재시도 제한 없음 — 유아 대상)</li>
-     *   <li>모든 엣지 완료 시 game_results 자동 저장 + 완성된 그래프 반환</li>
-     * </ul>
+     * 텍스트 매칭이 아닌 choice_id(PK) 비교로 채점한다.
      */
     @Override
     @Transactional
@@ -194,12 +154,7 @@ public class GameServiceImpl implements GameService {
         EdgeChoice selectedChoice = edgeChoiceRepository.findById(selectedChoiceId)
                 .orElseThrow(QuizNotFoundException::new);
 
-        // 선택한 보기가 해당 엣지에 속하는지 검증
-        if (!selectedChoice.getEdge().getId().equals(edgeId)) {
-            return QuizAnswerRes.incorrect();
-        }
-
-        if (!selectedChoice.isAnswer()) {
+        if (!selectedChoice.getEdge().getId().equals(edgeId) || !selectedChoice.isAnswer()) {
             return QuizAnswerRes.incorrect();
         }
 
@@ -222,15 +177,6 @@ public class GameServiceImpl implements GameService {
         return QuizAnswerRes.correct(edge.getDescription());
     }
 
-    /**
-     * 3단계 엣지 상세 조회 — GET /game/edge
-     *
-     * <p>관계도 화면에서 선 클릭 시 호출. edge_id로 단건 조회 후 description 반환.</p>
-     * <ul>
-     *   <li>edge_id → graph_edges 조회 (없으면 404)</li>
-     *   <li>본인 동화가 아니면 403, 본인 동화이지만 미완료면 404</li>
-     * </ul>
-     */
     @Override
     public EdgeDetailRes getEdgeDetail(Long userId, Long edgeId) {
         GraphEdge edge = graphEdgeRepository.findById(edgeId)
@@ -242,15 +188,6 @@ public class GameServiceImpl implements GameService {
         return EdgeDetailRes.from(edge);
     }
 
-    /**
-     * 3단계 전체 관계도 조회 — GET /game/graph
-     *
-     * <p>동화 모음집에서 '관계도' 버튼 클릭 시 호출. 완성된 그래프(노드+엣지)를 반환.</p>
-     * <ul>
-     *   <li>game_results에서 (userId, fairytaleId) 완료 검증 → 미완료/미존재 시 404</li>
-     *   <li>graph_nodes + graph_edges 조회 후 반환</li>
-     * </ul>
-     */
     @Override
     public GraphDetailRes getGraph(Long userId, Long fairytaleId) {
         validateGraphCompleted(userId, fairytaleId);
