@@ -1,9 +1,8 @@
 package com.capstone.kkumteul.domain.game.entity;
 
+import com.capstone.kkumteul.domain.game.exception.InvalidCategoryException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import com.capstone.kkumteul.domain.game.exception.InvalidCategoryException;
 
 import java.util.Arrays;
 

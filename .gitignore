@@ -47,4 +47,5 @@ src/main/resources/application.properties
 
 ### Claude Code ###
 .omc
+.claude/
 

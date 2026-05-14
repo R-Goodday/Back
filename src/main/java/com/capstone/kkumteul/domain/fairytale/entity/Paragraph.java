@@ -25,4 +25,12 @@ public class Paragraph extends BaseEntity {
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String text;
+
+    //nullable 제약은 추후
+    @Column
+    private String imageUrl;
+
+    public void updateImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 }

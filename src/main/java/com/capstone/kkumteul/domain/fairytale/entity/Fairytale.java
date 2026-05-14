@@ -5,6 +5,9 @@ import com.capstone.kkumteul.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Builder
@@ -36,6 +39,11 @@ public class Fairytale extends BaseEntity {
     @Column(nullable = false)
     private Background background;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "fairytale", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Paragraph> paragraphs = new ArrayList<>();
+
 }
