@@ -8,6 +8,8 @@ import com.capstone.kkumteul.domain.fairytale.repository.ParagraphRepository;
 import com.capstone.kkumteul.domain.fairytale.web.dto.FairytaleDetailRes;
 import com.capstone.kkumteul.domain.fairytale.web.dto.FairytaleListRes;
 import com.capstone.kkumteul.domain.fairytale.web.dto.ParagraphRes;
+import com.capstone.kkumteul.domain.vocab.repository.WordEntryRepository;
+import com.capstone.kkumteul.domain.vocab.web.dto.WordEntryRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +25,7 @@ public class FairytaleServiceImpl implements FairytaleService {
 
     private final FairytaleRepository fairytaleRepository;
     private final ParagraphRepository paragraphRepository;
+    private final WordEntryRepository wordEntryRepository;
 
     @Override
     public Page<FairytaleListRes> getMyFairytales(Long userId, Island island, Pageable pageable) {
@@ -46,6 +49,9 @@ public class FairytaleServiceImpl implements FairytaleService {
                 .map(ParagraphRes::from)
                 .toList();
 
-        return FairytaleDetailRes.of(fairytale, paragraphs);
+        List<WordEntryRes> vocab = WordEntryRes.listOf(
+                wordEntryRepository.findByFairytaleIdOrderByPageNoAsc(fairytaleId));
+
+        return FairytaleDetailRes.of(fairytale, paragraphs, vocab);
     }
 }

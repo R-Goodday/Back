@@ -8,7 +8,6 @@ import com.capstone.kkumteul.domain.kafka.dto.VocabExtractedMessage;
 import com.capstone.kkumteul.domain.vocab.entity.WordEntry;
 import com.capstone.kkumteul.domain.vocab.repository.WordEntryRepository;
 import com.capstone.kkumteul.domain.vocab.service.dto.VocabExtractionResult;
-import com.capstone.kkumteul.domain.vocab.web.dto.WordEntryRes;
 import com.capstone.kkumteul.global.client.VocabExtractClient;
 import com.capstone.kkumteul.global.client.dto.VocabExtractResponse;
 import lombok.RequiredArgsConstructor;
@@ -131,16 +130,4 @@ public class VocabServiceImpl implements VocabService {
         }
     }
 
-    /**
-     * 동화 누적 단어장 조회.
-     * 동화 존재 여부만 확인 후 페이지 순서로 반환.
-     * 동화 상세 조회와 동일한 정책 — 로그인한 사용자 모두 접근 가능.
-     */
-    @Override
-    public List<WordEntryRes> getVocab(Long userId, Long fairytaleId) {
-        if (!fairytaleRepository.existsById(fairytaleId)) {
-            throw new FairytaleNotFoundException();
-        }
-        return WordEntryRes.listOf(wordEntryRepository.findByFairytaleIdOrderByPageNoAsc(fairytaleId));
-    }
 }

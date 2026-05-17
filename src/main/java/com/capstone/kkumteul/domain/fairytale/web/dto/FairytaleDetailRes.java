@@ -1,6 +1,7 @@
 package com.capstone.kkumteul.domain.fairytale.web.dto;
 
 import com.capstone.kkumteul.domain.fairytale.entity.Fairytale;
+import com.capstone.kkumteul.domain.vocab.web.dto.WordEntryRes;
 
 import java.util.List;
 
@@ -11,9 +12,10 @@ public record FairytaleDetailRes(
         String morality,
         String charSpecies,
         String background,
-        List<ParagraphRes> paragraphs
+        List<ParagraphRes> paragraphs,
+        List<WordEntryRes> vocab
 ) {
-    public static FairytaleDetailRes of(Fairytale fairytale, List<ParagraphRes> paragraphs) {
+    public static FairytaleDetailRes of(Fairytale fairytale, List<ParagraphRes> paragraphs, List<WordEntryRes> vocab) {
         return new FairytaleDetailRes(
                 fairytale.getId(),
                 fairytale.getTitle(),
@@ -21,7 +23,8 @@ public record FairytaleDetailRes(
                 fairytale.getMorality().name(),
                 fairytale.getCharSpecies().name(),
                 fairytale.getBackground().name(),
-                paragraphs
+                paragraphs,
+                vocab
         );
     }
 }
