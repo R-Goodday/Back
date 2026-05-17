@@ -55,10 +55,9 @@ public class FairytaleController {
     @GetMapping("/shared")
     public ResponseEntity<SuccessResponse<Page<FairytaleListRes>>> getSharedFairytales(
             @AuthUser User user,
-            @RequestParam Island island,
             @PageableDefault(size = 6) Pageable pageable
     ) {
-        Page<FairytaleListRes> res = fairytaleService.getSharedFairytales(user.getId(), island, pageable);
+        Page<FairytaleListRes> res = fairytaleService.getSharedFairytales(user.getId(), pageable);
         return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.ok(res));
     }
 
