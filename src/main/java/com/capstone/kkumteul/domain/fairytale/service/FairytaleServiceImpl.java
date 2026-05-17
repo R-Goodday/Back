@@ -34,8 +34,8 @@ public class FairytaleServiceImpl implements FairytaleService {
     }
 
     @Override
-    public Page<FairytaleListRes> getSharedFairytales(Long userId, Island island, Pageable pageable) {
-        return fairytaleRepository.findByUserIdNotAndBackgroundIn(userId, island.getBackgrounds(), pageable)
+    public Page<FairytaleListRes> getSharedFairytales(Long userId, Pageable pageable) {
+        return fairytaleRepository.findSharedFairytales(userId, pageable)
                 .map(FairytaleListRes::from);
     }
 
