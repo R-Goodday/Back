@@ -19,9 +19,9 @@ public interface FairytaleRepository extends JpaRepository<Fairytale, Long> {
             countQuery = "SELECT COUNT(f) FROM Fairytale f WHERE f.user.id = :userId AND f.background IN :backgrounds")
     Page<Fairytale> findByUserIdAndBackgroundIn(@Param("userId") Long userId, @Param("backgrounds") List<Background> backgrounds, Pageable pageable);
 
-    @Query(value = "SELECT f FROM Fairytale f JOIN FETCH f.user WHERE f.user.id <> :userId AND f.background IN :backgrounds",
-            countQuery = "SELECT COUNT(f) FROM Fairytale f WHERE f.user.id <> :userId AND f.background IN :backgrounds")
-    Page<Fairytale> findByUserIdNotAndBackgroundIn(@Param("userId") Long userId, @Param("backgrounds") List<Background> backgrounds, Pageable pageable);
+    @Query(value = "SELECT f FROM Fairytale f JOIN FETCH f.user WHERE f.user.id <> :userId ORDER BY f.createdAt DESC",
+            countQuery = "SELECT COUNT(f) FROM Fairytale f WHERE f.user.id <> :userId")
+    Page<Fairytale> findSharedFairytales(@Param("userId") Long userId, Pageable pageable);
 
     @Query("SELECT f FROM Fairytale f JOIN FETCH f.user WHERE f.id = :id")
     Optional<Fairytale> findByIdWithUser(@Param("id") Long id);

@@ -6,10 +6,8 @@ import com.capstone.kkumteul.domain.fairytale.repository.FairytaleRepository;
 import com.capstone.kkumteul.domain.fairytale.service.FairytaleCheckService;
 import com.capstone.kkumteul.domain.kafka.dto.VocabExtractedMessage;
 import com.capstone.kkumteul.domain.vocab.entity.WordEntry;
-import com.capstone.kkumteul.domain.vocab.exception.VocabForbiddenException;
 import com.capstone.kkumteul.domain.vocab.repository.WordEntryRepository;
 import com.capstone.kkumteul.domain.vocab.service.dto.VocabExtractionResult;
-import com.capstone.kkumteul.domain.vocab.web.dto.WordEntryRes;
 import com.capstone.kkumteul.global.client.VocabExtractClient;
 import com.capstone.kkumteul.global.client.dto.VocabExtractResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -133,18 +130,4 @@ public class VocabServiceImpl implements VocabService {
         }
     }
 
-    /**
-     * 본인 동화 누적 단어장 조회.
-     * 동화 소유권 검증 후 페이지 순서로 반환.
-     */
-    @Override
-    public List<WordEntryRes> getVocab(Long userId, Long fairytaleId) {
-        Fairytale fairytale = fairytaleRepository.findById(fairytaleId)
-                .orElseThrow(FairytaleNotFoundException::new);
-        Objects.requireNonNull(fairytale.getUser(), "Fairytale.user는 null이 될 수 없음");
-        if (!fairytale.getUser().getId().equals(userId)) {
-            throw new VocabForbiddenException();
-        }
-        return WordEntryRes.listOf(wordEntryRepository.findByFairytaleIdOrderByPageNoAsc(fairytaleId));
-    }
 }

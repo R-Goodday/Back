@@ -10,7 +10,7 @@ public interface FairytaleService {
 
     Page<FairytaleListRes> getMyFairytales(Long userId, Island island, Pageable pageable);
 
-    Page<FairytaleListRes> getSharedFairytales(Long userId, Island island, Pageable pageable);
+    Page<FairytaleListRes> getSharedFairytales(Long userId, Pageable pageable);
 
     FairytaleDetailRes getFairytaleDetail(Long fairytaleId);
 }
