@@ -40,17 +40,17 @@ public class VoiceController {
     ) {
 
         // File validation
-        String originName = m4aFile.getOriginalFilename();
+        String m4aFilename = m4aFile.getOriginalFilename();
         
         // not null validation
-        if(originName == null) {
+        if(m4aFilename == null) {
             throw new InvalidFileException();
         }
 
         // is invalid or not m4a file validtaion
         if(m4aFile.isEmpty()
-                || originName.isBlank()
-        || !originName.toLowerCase().endsWith(".m4a"))
+                || m4aFilename.isBlank()
+        || !m4aFilename.toLowerCase().endsWith(".m4a"))
             throw new InvalidFileException();
 
         byte[] wavFile;
@@ -60,7 +60,7 @@ public class VoiceController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        String originalFilename = m4aFile.getOriginalFilename().replaceAll(".m4a", ".wav");
+        String originalFilename = m4aFilename.replace(".m4a", ".wav");
         
         voiceService.saveWav(wavFile, originalFilename, user);
 
