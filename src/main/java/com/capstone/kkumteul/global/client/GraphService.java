@@ -7,6 +7,9 @@ import com.capstone.kkumteul.global.client.dto.GraphExtractResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -30,9 +33,13 @@ public class GraphService {
     public void extractAndSave(Fairytale fairytale, String content) {
         GraphExtractRequest request = new GraphExtractRequest(fairytale.getId(), content);
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<GraphExtractRequest> entity = new HttpEntity<>(request, headers);
+
         GraphExtractResponse response = restTemplate.postForObject(
                 fastApiBaseUrl + "/graph/extract",
-                request,
+                entity,
                 GraphExtractResponse.class
         );
 
