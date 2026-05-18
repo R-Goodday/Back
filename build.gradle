@@ -57,6 +57,10 @@ dependencies {
 
 	// S3 (latest dependency)
 	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.4.2'
+
+	// m4a to wav
+	implementation 'net.bramp.ffmpeg:ffmpeg:0.9.1'
+
 }
 
 tasks.named('test') {
