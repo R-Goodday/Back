@@ -8,10 +8,19 @@ import com.capstone.kkumteul.global.response.SuccessResponse;
 import com.capstone.kkumteul.global.security.AuthUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.bramp.ffmpeg.FFmpeg;
+import net.bramp.ffmpeg.FFmpegExecutor;
+import net.bramp.ffmpeg.FFprobe;
+import net.bramp.ffmpeg.builder.FFmpegBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 @Slf4j
 @RestController
@@ -21,28 +30,71 @@ import org.springframework.web.multipart.MultipartFile;
 public class VoiceController {
 
     private final VoiceService voiceService;
+    private final FFmpeg ffmpeg;
+    private final FFprobe ffprobe;
 
     @PostMapping
     public ResponseEntity<SuccessResponse<?>> sendTtsRequestMessage(
             @AuthUser User user,
-            @RequestPart MultipartFile wavFile
+            @RequestPart MultipartFile m4aFile
     ) {
 
         // File validation
-        String originName = wavFile.getOriginalFilename();
-        if(originName == null) {
+        String m4aFilename = m4aFile.getOriginalFilename();
+        
+        // not null validation
+        if(m4aFilename == null) {
             throw new InvalidFileException();
         }
 
-        if(wavFile.isEmpty()
-                || originName.isBlank()
-        || !originName.toLowerCase().endsWith(".wav"))
+        // is invalid or not m4a file validtaion
+        if(m4aFile.isEmpty()
+                || m4aFilename.isBlank()
+        || !m4aFilename.toLowerCase().endsWith(".m4a"))
             throw new InvalidFileException();
 
-        voiceService.saveWav(wavFile, user);
+        byte[] wavFile;
+
+        try {
+            wavFile = convertM4aToWav(m4aFile);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String originalFilename = m4aFilename.replace(".m4a", ".wav");
+        
+        voiceService.saveWav(wavFile, originalFilename, user);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(SuccessResponse.created(user.getId()));
+    }
+
+    private byte[] convertM4aToWav(MultipartFile m4aFile) throws IOException {
+        Path in = Files.createTempFile("audio-", "m4a");
+        Path out = Files.createTempFile("audio-", "wav");
+
+        try {
+            Files.copy(m4aFile.getInputStream(), in, StandardCopyOption.REPLACE_EXISTING);
+
+            FFmpegBuilder ffmpegBuilder = new FFmpegBuilder()
+                    .setInput(in.toString())
+                    .done()
+                    .overrideOutputFiles(true)
+                    .addOutput(out.toString())
+                    .setFormat("wav")
+                    .setAudioCodec("pcm_s16le")
+                    .setAudioChannels(1)
+                    .setAudioSampleRate(16_000)
+                    .done();
+
+            new FFmpegExecutor(ffmpeg, ffprobe)
+                    .createJob(ffmpegBuilder)
+                    .run();
+
+            return Files.readAllBytes(out);
+        } finally {
+            Files.deleteIfExists(in);
+            Files.deleteIfExists(out);
+        }
     }
 
     @GetMapping("/{paragraphId}")
