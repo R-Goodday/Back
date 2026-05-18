@@ -35,14 +35,14 @@ public class VoiceServiceImpl implements VoiceService {
 
     @Override
     @Transactional
-    public Void saveWav(MultipartFile wavFile, User user) {
+    public Void saveWav(byte[] wavFile, String originalFilename, User user) {
 
         String uploadedUrl;
 
         try {
-            uploadedUrl = s3Uploader.upload(wavFile, user);
+            uploadedUrl = s3Uploader.upload(wavFile, originalFilename, user);
         } catch (IOException e) {
-            log.error("VoiceService error occurred. userId = {}, filename = {}", user.getId(), wavFile.getOriginalFilename());
+            log.error("VoiceService error occurred. userId = {}, filename = {}", user.getId(), originalFilename);
             throw new FileUploadFailException();
         }
 

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
@@ -30,14 +31,14 @@ public class S3Uploader {
     }
 
     // upload S3 bucket
-    public String upload(MultipartFile wavFile, User user) throws IOException {
+    public String upload(byte[] wavFile, String originalFilename, User user) throws IOException {
         return putS3(
-                convert(wavFile),
+                new ByteArrayInputStream(wavFile),
                 createFilename(
-                        wavFile.getOriginalFilename(),
+                        originalFilename,
                         user.getId()
                 ),
-                wavFile.getContentType()
+                "audio/wav"
         );
     }
 
