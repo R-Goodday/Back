@@ -63,9 +63,10 @@ public class FairytaleController {
 
     @GetMapping("/{fairytaleId}")
     public ResponseEntity<SuccessResponse<FairytaleDetailRes>> getFairytaleDetail(
+            @AuthUser User user,
             @PathVariable Long fairytaleId
     ) {
-        FairytaleDetailRes res = fairytaleService.getFairytaleDetail(fairytaleId);
+        FairytaleDetailRes res = fairytaleService.getFairytaleDetail(fairytaleId, user.getId());
         return ResponseEntity.status(HttpStatus.OK).body(SuccessResponse.ok(res));
     }
 

@@ -1,11 +1,14 @@
 package com.capstone.kkumteul.domain.kafka.consumer;
 
 import com.capstone.kkumteul.domain.fairytale.entity.Paragraph;
+import com.capstone.kkumteul.domain.fairytale.extern.ParagraphPort;
 import com.capstone.kkumteul.domain.fairytale.repository.ParagraphRepository;
 import com.capstone.kkumteul.domain.fairytale.service.FairytaleCheckService;
 import com.capstone.kkumteul.domain.kafka.dto.FairytaleCompletedMessage;
 import com.capstone.kkumteul.domain.kafka.dto.ImageMessage;
+import com.capstone.kkumteul.domain.kafka.dto.TtsFileDoneMessage;
 import com.capstone.kkumteul.global.client.GraphExtractTrigger;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +25,19 @@ public class FairytaleKafkaConsumer {
     private final ParagraphRepository paragraphRepository;
     private final FairytaleCheckService fairytaleCheckService;
     private final GraphExtractTrigger graphExtractTrigger;
+    private final ParagraphPort paragraphPort;
     private final ObjectMapper objectMapper;
+
+    @KafkaListener(topics = "tts_done", groupId = "kkumteul-group")
+    public void consumeTtsFileDone(String message) {
+        try {
+            TtsFileDoneMessage msg = objectMapper.readValue(message, TtsFileDoneMessage.class);
+            int pageNo = paragraphPort.getPageNoByParagraphId(msg.getParagraphId());
+            fairytaleCheckService.markTtsFileDone(msg.getFairytaleId(), pageNo, msg.getTtsUrl());
+        } catch (JsonProcessingException e) {
+            log.error("tts_done 처리 실패 message={}", message, e);
+        }
+    }
 
     @KafkaListener(topics = "fairytale_done", groupId = "kkumteul-group")
     public void consumeDone(String message) {

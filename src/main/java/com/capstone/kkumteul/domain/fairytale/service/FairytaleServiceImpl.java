@@ -10,6 +10,8 @@ import com.capstone.kkumteul.domain.fairytale.web.dto.FairytaleListRes;
 import com.capstone.kkumteul.domain.fairytale.web.dto.ParagraphRes;
 import com.capstone.kkumteul.domain.vocab.repository.WordEntryRepository;
 import com.capstone.kkumteul.domain.vocab.web.dto.WordEntryRes;
+import com.capstone.kkumteul.domain.voice.repository.TtsHistoryRepository;
+import com.capstone.kkumteul.domain.voice.web.dto.TtsResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +28,7 @@ public class FairytaleServiceImpl implements FairytaleService {
     private final FairytaleRepository fairytaleRepository;
     private final ParagraphRepository paragraphRepository;
     private final WordEntryRepository wordEntryRepository;
+    private final TtsHistoryRepository ttsHistoryRepository;
 
     @Override
     public Page<FairytaleListRes> getMyFairytales(Long userId, Island island, Pageable pageable) {
@@ -40,13 +43,19 @@ public class FairytaleServiceImpl implements FairytaleService {
     }
 
     @Override
-    public FairytaleDetailRes getFairytaleDetail(Long fairytaleId) {
+    public FairytaleDetailRes getFairytaleDetail(Long fairytaleId, Long userId) {
         Fairytale fairytale = fairytaleRepository.findByIdWithUser(fairytaleId)
                 .orElseThrow(FairytaleNotFoundException::new);
 
         List<ParagraphRes> paragraphs = paragraphRepository.findByFairytaleIdOrderByPageAsc(fairytaleId)
                 .stream()
-                .map(ParagraphRes::from)
+                .map(p -> {
+                    String ttsUrl = ttsHistoryRepository
+                            .findTtsUrlByFairytaleIdAndUserIdAndPageNo(fairytaleId, userId, p.getPage())
+                            .map(TtsResponse::ttsUrl)
+                            .orElse(null);
+                    return ParagraphRes.from(p, ttsUrl);
+                })
                 .toList();
 
         List<WordEntryRes> vocab = WordEntryRes.listOf(
