@@ -1,5 +1,6 @@
 package com.capstone.kkumteul.domain.game.web.dto;
 
+import com.capstone.kkumteul.domain.fairytale.entity.Fairytale;
 import com.capstone.kkumteul.domain.game.service.GameSession.SessionNode;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -16,25 +17,35 @@ public record ClassifyRes(
         boolean stageComplete,
         String hint,
         String nextStage,
+        String selectedCharSpecies,
+        String selectedBackground,
         AssembleQuestionRes question
 ) {
 
     /** 정답 — stageComplete 여부만 전달 */
     public static ClassifyRes correct(boolean stageComplete) {
-        return new ClassifyRes(true, stageComplete, null, null, null);
+        return new ClassifyRes(true, stageComplete, null, null, null, null, null);
     }
 
     /** 오답 — 힌트 메시지 포함 */
     public static ClassifyRes incorrect() {
-        return new ClassifyRes(false, false, "다시 시도해보세요!", null, null);
+        return new ClassifyRes(false, false, "다시 시도해보세요!", null, null, null, null);
     }
 
-    public static ClassifyRes stageComplete(Collection<SessionNode> nodes, int totalEdges) {
+    public static ClassifyRes stageComplete(Fairytale fairytale, Collection<SessionNode> nodes, int totalEdges) {
         List<NodeWithCategoryRes> nodeResList = nodes.stream()
                 .map(NodeWithCategoryRes::from)
                 .toList();
         AssembleQuestionRes question = new AssembleQuestionRes(nodeResList, totalEdges);
-        return new ClassifyRes(true, true, null, "ASSEMBLE", question);
+        return new ClassifyRes(
+                true,
+                true,
+                null,
+                "ASSEMBLE",
+                fairytale.getCharSpecies().name(),
+                fairytale.getBackground().name(),
+                question
+        );
     }
 
     public record AssembleQuestionRes(List<NodeWithCategoryRes> nodes, int totalEdges) {}
