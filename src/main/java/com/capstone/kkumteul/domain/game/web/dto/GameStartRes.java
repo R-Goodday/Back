@@ -1,5 +1,6 @@
 package com.capstone.kkumteul.domain.game.web.dto;
 
+import com.capstone.kkumteul.domain.fairytale.entity.Fairytale;
 import com.capstone.kkumteul.domain.game.entity.NodeCategory;
 import com.capstone.kkumteul.domain.game.service.GameSession.SessionNode;
 
@@ -14,18 +15,26 @@ import java.util.List;
 public record GameStartRes(
         String sessionId,
         String stage,
+        String selectedCharSpecies,
+        String selectedBackground,
         ClassifyQuestionRes question
 ) {
 
-    public static GameStartRes of(String sessionId, Collection<SessionNode> nodes) {
-        List<NodeRes> nodeResList = nodes.stream()
-                .map(NodeRes::from)
+    public static GameStartRes of(String sessionId, Fairytale fairytale, Collection<SessionNode> nodes) {
+        List<NodeWithCategoryRes> nodeResList = nodes.stream()
+                .map(NodeWithCategoryRes::from)
                 .toList();
         List<String> categories = Arrays.stream(NodeCategory.values())
                 .map(NodeCategory::getLabel)
                 .toList();
-        return new GameStartRes(sessionId, "CLASSIFY", new ClassifyQuestionRes(nodeResList, categories));
+        return new GameStartRes(
+                sessionId,
+                "CLASSIFY",
+                fairytale.getCharSpecies().name(),
+                fairytale.getBackground().name(),
+                new ClassifyQuestionRes(nodeResList, categories)
+        );
     }
 
-    public record ClassifyQuestionRes(List<NodeRes> nodes, List<String> categories) {}
+    public record ClassifyQuestionRes(List<NodeWithCategoryRes> nodes, List<String> categories) {}
 }

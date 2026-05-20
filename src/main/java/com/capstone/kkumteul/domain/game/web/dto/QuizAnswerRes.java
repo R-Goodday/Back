@@ -1,5 +1,6 @@
 package com.capstone.kkumteul.domain.game.web.dto;
 
+import com.capstone.kkumteul.domain.fairytale.entity.Fairytale;
 import com.capstone.kkumteul.domain.game.service.GameSession.SessionEdge;
 import com.capstone.kkumteul.domain.game.service.GameSession.SessionNode;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -19,20 +20,22 @@ public record QuizAnswerRes(
         String description,
         String hint,
         String nextStage,
+        String selectedCharSpecies,
+        String selectedBackground,
         GraphRes graph
 ) {
 
     /** 정답 — 엣지 설명 포함 */
     public static QuizAnswerRes correct(String description) {
-        return new QuizAnswerRes(true, false, description, null, null, null);
+        return new QuizAnswerRes(true, false, description, null, null, null, null, null);
     }
 
     /** 오답 — 힌트 메시지 포함 */
     public static QuizAnswerRes incorrect() {
-        return new QuizAnswerRes(false, false, null, "틀렸어요! 다시 한번 생각해볼까요?", null, null);
+        return new QuizAnswerRes(false, false, null, "틀렸어요! 다시 한번 생각해볼까요?", null, null, null, null);
     }
 
-    public static QuizAnswerRes stageComplete(String description, Collection<SessionNode> nodes, List<SessionEdge> edges) {
+    public static QuizAnswerRes stageComplete(Fairytale fairytale, String description, Collection<SessionNode> nodes, List<SessionEdge> edges) {
         List<NodeWithCategoryRes> nodeResList = nodes.stream()
                 .map(NodeWithCategoryRes::from)
                 .toList();
@@ -40,7 +43,16 @@ public record QuizAnswerRes(
                 .map(e -> new EdgeRes(e.getId(), e.getFromNodeId(), e.getToNodeId()))
                 .toList();
         GraphRes graph = new GraphRes(nodeResList, edgeResList);
-        return new QuizAnswerRes(true, true, description, null, "RELATION", graph);
+        return new QuizAnswerRes(
+                true,
+                true,
+                description,
+                null,
+                "RELATION",
+                fairytale.getCharSpecies().name(),
+                fairytale.getBackground().name(),
+                graph
+        );
     }
 
     public record GraphRes(List<NodeWithCategoryRes> nodes, List<EdgeRes> edges) {}

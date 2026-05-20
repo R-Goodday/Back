@@ -85,7 +85,7 @@ public class GameServiceImpl implements GameService {
         GameSession session = new GameSession(userId, fairytaleId, nodes, edges);
         sessionManager.save(session);
 
-        return GameStartRes.of(session.getSessionId(), session.getNodes());
+        return GameStartRes.of(session.getSessionId(), fairytale, session.getNodes());
     }
 
     @Override
@@ -108,7 +108,8 @@ public class GameServiceImpl implements GameService {
 
         // 모든 노드 분류 완료 → 1단계 종료, 2단계 데이터 반환
         if (session.isClassifyComplete()) {
-            return ClassifyRes.stageComplete(session.getNodes(), session.getTotalEdges());
+            Fairytale fairytale = entityManager.find(Fairytale.class, session.getFairytaleId());
+            return ClassifyRes.stageComplete(fairytale, session.getNodes(), session.getTotalEdges());
         }
 
         return ClassifyRes.correct(false);
@@ -171,7 +172,8 @@ public class GameServiceImpl implements GameService {
             saveGameResult(session);
             // 세션 제거
             sessionManager.remove(sessionId);
-            return QuizAnswerRes.stageComplete(edge.getDescription(), session.getNodes(), session.getEdges());
+            Fairytale fairytale = entityManager.find(Fairytale.class, session.getFairytaleId());
+            return QuizAnswerRes.stageComplete(fairytale, edge.getDescription(), session.getNodes(), session.getEdges());
         }
 
         return QuizAnswerRes.correct(edge.getDescription());
@@ -192,10 +194,15 @@ public class GameServiceImpl implements GameService {
     public GraphDetailRes getGraph(Long userId, Long fairytaleId) {
         validateGraphCompleted(userId, fairytaleId);
 
+        Fairytale fairytale = entityManager.find(Fairytale.class, fairytaleId);
+        if (fairytale == null) {
+            throw new FairytaleNotFoundException();
+        }
+
         List<GraphNode> nodes = graphNodeRepository.findByFairytaleId(fairytaleId);
         List<GraphEdge> edges = graphEdgeRepository.findByFairytaleId(fairytaleId);
 
-        return GraphDetailRes.of(fairytaleId, nodes, edges);
+        return GraphDetailRes.of(fairytale, nodes, edges);
     }
 
     /**
