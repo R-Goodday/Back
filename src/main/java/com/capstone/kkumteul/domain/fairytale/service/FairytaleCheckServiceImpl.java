@@ -6,6 +6,7 @@ import com.capstone.kkumteul.domain.fairytale.service.sse.SseService;
 import com.capstone.kkumteul.domain.fairytale.web.dto.SseEventRes;
 import com.capstone.kkumteul.domain.vocab.entity.WordEntry;
 import com.capstone.kkumteul.domain.vocab.repository.WordEntryRepository;
+import com.capstone.kkumteul.domain.voice.repository.TtsHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,12 +27,14 @@ public class FairytaleCheckServiceImpl implements FairytaleCheckService {
     private final SseService sseService;
     private final WordEntryRepository wordEntryRepository;
     private final ParagraphRepository paragraphRepository;
+    private final TtsHistoryRepository ttsHistoryRepository;
 
     @Value("${vocab.fallback-threshold-seconds:300}")
     private long vocabFallbackThresholdSeconds;
 
     private static final String VOCAB_KEY = "vocab:%d:%d";
     private static final String IMAGE_KEY = "image:%d:%d";
+    private static final String TTS_KEY = "tts:%d:%d";
     private static final String TOTAL_KEY = "total:%d";
     private static final String SENT_KEY = "sent:%d";
     private static final String DONE = "done";
@@ -48,6 +51,13 @@ public class FairytaleCheckServiceImpl implements FairytaleCheckService {
         redisTemplate.opsForValue().set(String.format(IMAGE_KEY, fairytaleId, page), DONE);
         log.info("[IMAGE DONE] fairytaleId={}, page={}", fairytaleId, page);
         forceVocabIfStale(fairytaleId, page);
+        checkAndSend(fairytaleId, page);
+    }
+
+    @Override
+    public void markTtsFileDone(Long fairytaleId, int page, String ttsUrl) {
+        redisTemplate.opsForValue().set(String.format(TTS_KEY, fairytaleId, page), DONE.concat("@" + ttsUrl));
+        log.info("[TTS DONE] fairytaleId={}, page={}", fairytaleId, page);
         checkAndSend(fairytaleId, page);
     }
 
@@ -71,11 +81,15 @@ public class FairytaleCheckServiceImpl implements FairytaleCheckService {
         redisTemplate.opsForValue().set(vocabKey, DONE);
     }
 
+    // FIXME isBothDone -> isAllDone
     @Override
     public boolean isBothDone(Long fairytaleId, int page) {
         String vocabStatus = redisTemplate.opsForValue().get(String.format(VOCAB_KEY, fairytaleId, page));
         String imageStatus = redisTemplate.opsForValue().get(String.format(IMAGE_KEY, fairytaleId, page));
-        return DONE.equals(vocabStatus) && DONE.equals(imageStatus);
+
+        String ttsStatus = redisTemplate.opsForValue().get(String.format(TTS_KEY, fairytaleId, page));
+        return DONE.equals(vocabStatus) && DONE.equals(imageStatus) &&
+                ttsStatus != null && DONE.equals(ttsStatus.split("@")[0]);
     }
 
     //sse전송
@@ -85,6 +99,7 @@ public class FairytaleCheckServiceImpl implements FairytaleCheckService {
         if (!both) return;
 
         Optional<WordEntry> wordEntry = wordEntryRepository.findByFairytaleIdAndPageNo(fairytaleId, page);
+        String ttsUrl = redisTemplate.opsForValue().get(String.format(TTS_KEY, fairytaleId, page)).split("@")[1];
         List<Paragraph> paragraphs = paragraphRepository.findByFairytaleIdAndPage(fairytaleId, page);
 
         if (paragraphs.isEmpty()) {
@@ -104,7 +119,8 @@ public class FairytaleCheckServiceImpl implements FairytaleCheckService {
                 page,
                 sentences,
                 vocab,
-                paragraph.getImageUrl()
+                paragraph.getImageUrl(),
+                ttsUrl
         );
 
         log.info("[PAGE_CONTENT SEND] fairytaleId={}, page={}", fairytaleId, page);
@@ -112,6 +128,7 @@ public class FairytaleCheckServiceImpl implements FairytaleCheckService {
 
         redisTemplate.delete(String.format(VOCAB_KEY, fairytaleId, page));
         redisTemplate.delete(String.format(IMAGE_KEY, fairytaleId, page));
+        redisTemplate.delete(String.format(TTS_KEY, fairytaleId, page));
 
         Long sent = redisTemplate.opsForValue().increment(String.format(SENT_KEY, fairytaleId));
         log.info("[SENT COUNT] fairytaleId={}, sent={}", fairytaleId, sent);
