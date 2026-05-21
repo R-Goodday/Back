@@ -9,4 +9,6 @@ public interface FairytaleCheckService {
     boolean isBothDone(Long fairytaleId, int page);
 
     void markTotalPages(Long fairytaleId, int totalPages);
+
+    void markTtsFileDone(Long fairytaleId, int pageNo, String ttsUrl);
 }

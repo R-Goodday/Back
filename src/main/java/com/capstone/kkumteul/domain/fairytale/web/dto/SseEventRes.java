@@ -7,7 +7,8 @@ public record SseEventRes(
         int pageNo,
         List<String> text,
         Vocabulary vocab,
-        String imageUrl
+        String imageUrl,
+        String ttsUrl
 ) { public record Vocabulary(
         String word,
         String meaning

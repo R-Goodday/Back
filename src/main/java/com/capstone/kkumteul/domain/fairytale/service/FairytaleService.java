@@ -12,5 +12,5 @@ public interface FairytaleService {
 
     Page<FairytaleListRes> getSharedFairytales(Long userId, Pageable pageable);
 
-    FairytaleDetailRes getFairytaleDetail(Long fairytaleId);
+    FairytaleDetailRes getFairytaleDetail(Long fairytaleId, Long userId);
 }
