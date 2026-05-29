@@ -13,7 +13,7 @@ public class FFmpegDI {
     @Bean
     public FFmpeg ffmpeg() {
         try {
-            return new FFmpeg("/usr/bin/ffmpeg");
+            return new FFmpeg("/opt/homebrew/bin/ffmpeg");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -22,7 +22,7 @@ public class FFmpegDI {
     @Bean
     public FFprobe ffprobe() {
         try {
-            return new FFprobe("/usr/bin/ffprobe");
+            return new FFprobe("/opt/homebrew/bin/ffprobe");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

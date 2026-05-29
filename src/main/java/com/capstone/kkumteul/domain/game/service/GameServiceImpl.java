@@ -213,9 +213,7 @@ public class GameServiceImpl implements GameService {
      * ② 완료 여부: game_results.completed != true 면 {@link GameNotCompletedException} (404).</p>
      */
     private void validateOwnedAndCompleted(Long userId, Fairytale fairytale) {
-        if (!fairytale.getUser().getId().equals(userId)) {
-            throw new GameForbiddenException();
-        }
+
         GameResult result = gameResultRepository.findByUserIdAndFairytaleId(userId, fairytale.getId())
                 .orElseThrow(GameNotCompletedException::new);
         if (!result.isCompleted()) {
