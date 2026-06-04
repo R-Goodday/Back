@@ -13,6 +13,29 @@
 - Auth: JWT
 - Media: FFmpeg
 
+## 📁 Project Structure
+```
+src/main/java/com/capstone/kkumteul
+    ├── domain
+    │     ├── auth
+    │     ├── fairytale
+    │     ├── game
+    │     ├── kafka
+    │     ├── user
+    │     ├── vocab
+    │     └── voice
+    ├── global
+    │     ├── client
+    │     ├── config
+    │     ├── constant
+    │     ├── entity
+    │     ├── exception
+    │     ├── jwt
+    │     ├── response
+    │     └── security
+    └── KkumteulApplication.java
+```
+
 ## 🏗️ Architecture
 <img width="60%" alt="image" src="https://github.com/user-attachments/assets/f620bd41-49d1-4751-bc2c-c90f2425230d" />
 
@@ -30,6 +53,68 @@
 - `voice`: 음성 업로드 및 변환
 - `vocab`: 단어 추출 및 저장
 - `kafka`: 비동기 이벤트 처리
+<br>
+
+------
+
+# 🚀 Local Setup
+
+`src/main/resources` 디렉토리와 `application.properties` 설정 파일을 생성한 뒤 필요한 값을 설정합니다.
+
+```properties
+# Database
+spring.datasource.url=jdbc:mysql://localhost:3306/kkumteul
+spring.datasource.username=root
+spring.datasource.password=your-password
+
+# Redis
+spring.data.redis.host=localhost
+spring.data.redis.port=6379
+
+# JWT
+jwt.secret=your-jwt-secret-key
+jwt.expiration=86400000
+
+# Kafka
+KAFKA_URL=localhost:9092
+FAIRYTALE_GENERATION=fairytale_generate
+TTS_MODELING=tts_modeling
+VOCAB_EXTRACTED_GROUP_ID=kkumteul-vocab
+
+# FastAPI
+fastapi.base-url=http://localhost:8000
+
+# AWS S3
+AWS_S3_BUCKET_NAME=your-s3-bucket-name
+
+# Vocab fallback
+vocab.fallback-threshold-seconds=300
+```
+서버 실행:
+```bash
+./gradlew bootRun
+```
+
+테스트 실행:
+
+```bash
+./gradlew test
+./gradlew kafkaBrokerTest
+```
+
+## 🐳 Docker
+
+`docker-compose.yml` 기준 서비스:
+
+- `backend`
+- `redis`
+- `fastapi`
+- `nginx`
+
+환경변수:
+
+- `BACKEND_IMAGE`
+- `FASTAPI_IMAGE`
 <br>
 
 ------
@@ -56,36 +141,3 @@
 |-----------|----------------------------------------|
 | `main`    | - 최종 배포용 브랜치<br>- dev 브랜치에서 안정화 버전만 병합 |
 | `develop` | - 개발용 브랜치<br>- 자유롭게 병합                 |
-<br>
-
-------
-
-# 🚀 Local Setup
-
-`src/main/resources/application.properties`를 생성하고 필요한 값을 설정한 뒤 아래 명령으로 실행합니다.
-
-```bash
-./gradlew bootRun
-```
-
-테스트 실행:
-
-```bash
-./gradlew test
-./gradlew kafkaBrokerTest
-```
-
-## 🐳 Docker
-
-`docker-compose.yml` 기준 서비스:
-
-- `backend`
-- `redis`
-- `fastapi`
-- `nginx`
-
-환경변수:
-
-- `BACKEND_IMAGE`
-- `FASTAPI_IMAGE`
-
