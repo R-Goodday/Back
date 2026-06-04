@@ -36,14 +36,6 @@ src/main/java/com/capstone/kkumteul
     └── KkumteulApplication.java
 ```
 
-## 🏗️ Architecture
-<img width="100%" alt="image" src="https://github.com/user-attachments/assets/f620bd41-49d1-4751-bc2c-c90f2425230d" />
-
-
-## 🗂️ ERD
-
-<img width="100%" alt="image" src="https://github.com/user-attachments/assets/f5273cec-e12e-4c5f-b556-d6726604706b" />
-
 ## 🧩 Service Modules
 
 - `auth`: 회원가입, 로그인, JWT 인증
@@ -53,6 +45,15 @@ src/main/java/com/capstone/kkumteul
 - `voice`: 음성 업로드 및 변환
 - `vocab`: 단어 추출 및 저장
 - `kafka`: 비동기 이벤트 처리
+  
+## 🏗️ Architecture
+<img width="100%" alt="image" src="https://github.com/user-attachments/assets/f620bd41-49d1-4751-bc2c-c90f2425230d" />
+
+
+## 🗂️ ERD
+
+<img width="100%" alt="image" src="https://github.com/user-attachments/assets/f5273cec-e12e-4c5f-b556-d6726604706b" />
+
 <br>
 
 ------
