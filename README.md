@@ -37,12 +37,12 @@ src/main/java/com/capstone/kkumteul
 ```
 
 ## 🏗️ Architecture
-<img width="60%" alt="image" src="https://github.com/user-attachments/assets/f620bd41-49d1-4751-bc2c-c90f2425230d" />
+<img width="80%" alt="image" src="https://github.com/user-attachments/assets/f620bd41-49d1-4751-bc2c-c90f2425230d" />
 
 
 ## 🗂️ ERD
 
-<img width="60%" alt="image" src="https://github.com/user-attachments/assets/f5273cec-e12e-4c5f-b556-d6726604706b" />
+<img width="80%" alt="image" src="https://github.com/user-attachments/assets/f5273cec-e12e-4c5f-b556-d6726604706b" />
 
 ## 🧩 Service Modules
 
